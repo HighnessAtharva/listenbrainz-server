@@ -82,8 +82,8 @@ class ListenAPIIntegrationTestCase(IntegrationTestCase, TimescaleTestCase):
         response = self.client.post(
             url_for('api_v1.submit_listen'),
             data=json.dumps(payload),
-            headers={'Authorization': 'Token {}'.format(user['auth_token'])},
-            content_type='application/json'
+            headers={'Authorization': f"Token {user['auth_token']}"},
+            content_type='application/json',
         )
         if recalculate:
             # recalculate only if asked because there are many tests for invalid

@@ -31,15 +31,13 @@ class MBIDMappingQuery(Query):
     def fetch(self, params, offset=-1, count=-1):
         """ Call the MBIDMapper and carry out this mapping search """
 
-        args = []
-        for i, param in enumerate(params):
-            args.append((i, param['[artist_credit_name]'],
-                         param['[recording_name]']))
-
+        args = [
+            (i, param['[artist_credit_name]'], param['[recording_name]'])
+            for i, param in enumerate(params)
+        ]
         results = []
         for index, artist_credit_name, recording_name in args:
-            hit = self.mapper.search(artist_credit_name, recording_name)
-            if hit:
+            if hit := self.mapper.search(artist_credit_name, recording_name):
                 hit["artist_credit_arg"] = artist_credit_name
                 hit["recording_arg"] = recording_name
                 hit["index"] = index

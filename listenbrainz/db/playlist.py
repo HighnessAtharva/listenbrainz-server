@@ -55,8 +55,7 @@ def get_by_mbid(playlist_id: str, load_recordings: bool = True) -> Optional[mode
         user = db_user.get(user_id)
         obj['creator'] = user['musicbrainz_id']
         if obj['created_for_id']:
-            created_for_user = db_user.get(obj['created_for_id'])
-            if created_for_user:
+            if created_for_user := db_user.get(obj['created_for_id']):
                 obj['created_for'] = created_for_user['musicbrainz_id']
 
         if load_recordings:
@@ -165,8 +164,7 @@ def _playlist_resultset_to_model(connection, result, load_recordings):
         playlist = model_playlist.Playlist.parse_obj(row)
         playlists.append(playlist)
 
-    playlist_ids = [p.id for p in playlists]
-    if playlist_ids:
+    if playlist_ids := [p.id for p in playlists]:
         if load_recordings:
             playlist_recordings = get_recordings_for_playlists(connection, playlist_ids)
             for p in playlists:
@@ -201,7 +199,8 @@ def get_playlists_created_for_user(user_id: int,
         count = None
 
     params = {"created_for_id": user_id, "count": count, "offset": offset}
-    query = sqlalchemy.text(f"""
+    query = sqlalchemy.text(
+        """
         SELECT pl.id
              , pl.mbid
              , pl.creator_id
@@ -220,7 +219,8 @@ def get_playlists_created_for_user(user_id: int,
          WHERE pl.created_for_id = :created_for_id
       ORDER BY pl.created DESC
          LIMIT :count
-        OFFSET :offset""")
+        OFFSET :offset"""
+    )
 
     with ts.engine.connect() as connection:
         result = connection.execute(query, params)
@@ -228,9 +228,11 @@ def get_playlists_created_for_user(user_id: int,
 
         # Fetch the total count of playlists
         params = {"created_for_id": user_id}
-        query = sqlalchemy.text(f"""SELECT COUNT(*)
+        query = sqlalchemy.text(
+            """SELECT COUNT(*)
                                       FROM playlist.playlist
-                                     WHERE created_for_id = :created_for_id""")
+                                     WHERE created_for_id = :created_for_id"""
+        )
         count = connection.execute(query, params).fetchone()[0]
 
     return playlists, count
@@ -328,10 +330,7 @@ def get_collaborators_for_playlists(connection, playlist_ids: List[int]):
          WHERE playlist_id in :playlist_ids
       GROUP BY playlist_id""")
     result = connection.execute(query, {"playlist_ids": tuple(playlist_ids)})
-    ret = {}
-    for row in result.fetchall():
-        ret[row.playlist_id] = row.collaborator_ids
-    return ret
+    return {row.playlist_id: row.collaborator_ids for row in result.fetchall()}
 
 
 def get_recordings_for_playlists(connection, playlist_ids: List[int]):
@@ -479,8 +478,7 @@ def get_collaborators_names_from_ids(collaborator_ids: List[int]):
     collaborators = []
     # TODO: Look this up in one query
     for user_id in collaborator_ids:
-        user = db_user.get(user_id)
-        if user:
+        if user := db_user.get(user_id):
             collaborators.append(user["musicbrainz_id"])
     collaborators.sort()
     return collaborators
@@ -527,7 +525,7 @@ def set_last_updated(connection, playlist_id):
 
 def copy_playlist(playlist: model_playlist.Playlist, creator_id: int):
     newplaylist = playlist.copy()
-    newplaylist.name = "Copy of " + newplaylist.name
+    newplaylist.name = f"Copy of {newplaylist.name}"
     newplaylist.creator_id = creator_id
     newplaylist.copied_from_id = playlist.id
     newplaylist.created_for_id = None
@@ -700,7 +698,11 @@ def add_recordings_to_playlist(playlist: model_playlist.Playlist,
                               "position": position}
             connection.execute(reorder, reorder_params)
         recordings = insert_recordings(connection, playlist.id, recordings, position)
-        playlist.recordings = playlist.recordings[0:position] + recordings + playlist.recordings[position:]
+        playlist.recordings = (
+            playlist.recordings[:position]
+            + recordings
+            + playlist.recordings[position:]
+        )
         set_last_updated(connection, playlist.id)
         return playlist
 

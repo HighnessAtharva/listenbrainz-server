@@ -38,12 +38,11 @@ class StatsAPITestCase(IntegrationTestCase):
         super(StatsAPITestCase, cls).setUpClass()
         stats = ["artists", "releases", "recordings", "daily_activity", "listening_activity", "artistmap"]
         ranges = ["week", "month", "year", "all_time"]
-        for stat in stats:
-            for range_ in ranges:
-                if stat == "artistmap":
-                    couchdb.create_database(f"{stat}_{range_}")
-                else:
-                    couchdb.create_database(f"{stat}_{range_}_20220718")
+        for stat, range_ in itertools.product(stats, ranges):
+            if stat == "artistmap":
+                couchdb.create_database(f"{stat}_{range_}")
+            else:
+                couchdb.create_database(f"{stat}_{range_}_20220718")
 
         # we do not clear the couchdb databases after each test. user stats keep working because
         # the user id changes for each test. for sitewide stats this is not the case as the user id
@@ -319,7 +318,7 @@ class StatsAPITestCase(IntegrationTestCase):
 
     def test_listening_activity_stat(self):
         endpoint = self.non_entity_endpoints["listening_activity"]["endpoint"]
-        with self.subTest(f"test valid response is received for listening_activity stats"):
+        with self.subTest("test valid response is received for listening_activity stats"):
             payload = self.non_entity_endpoints["listening_activity"]["payload"]
             response = self.client.get(url_for(endpoint, user_name=self.user['musicbrainz_id']))
             self.assertListeningActivityEqual(payload, response)
@@ -336,7 +335,7 @@ class StatsAPITestCase(IntegrationTestCase):
 
     def test_daily_activity_stat(self):
         endpoint = self.non_entity_endpoints["daily_activity"]["endpoint"]
-        with self.subTest(f"test valid response is received for daily_activity stats"):
+        with self.subTest("test valid response is received for daily_activity stats"):
             response = self.client.get(url_for(endpoint, user_name=self.user['musicbrainz_id']))
             with open(self.path_to_data_file('user_daily_activity_api_output.json')) as f:
                 expected = json.load(f)["payload"]
@@ -359,7 +358,7 @@ class StatsAPITestCase(IntegrationTestCase):
     @patch('listenbrainz.webserver.views.stats_api.datetime', MockDate)
     def test_artist_map_stat(self):
         endpoint = self.non_entity_endpoints["artist_map"]["endpoint"]
-        with self.subTest(f"test valid response is received for artist_map stats"):
+        with self.subTest("test valid response is received for artist_map stats"):
             response = self.client.get(url_for(endpoint, user_name=self.user['musicbrainz_id']))
             payload = self.non_entity_endpoints["artist_map"]["payload"]
             self.assertArtistMapEqual(payload, response)
@@ -406,8 +405,10 @@ class StatsAPITestCase(IntegrationTestCase):
         # Mock fetching country data from labs.api.listenbrainz.org
         with open(self.path_to_data_file("mbid_country_mapping_result.json")) as f:
             mbid_country_mapping_result = json.load(f)
-        mock_requests.post("{}/artist-country-code-from-artist-mbid/json".format(LISTENBRAINZ_LABS_API_URL),
-                           json=mbid_country_mapping_result)
+        mock_requests.post(
+            f"{LISTENBRAINZ_LABS_API_URL}/artist-country-code-from-artist-mbid/json",
+            json=mbid_country_mapping_result,
+        )
 
         response = self.client.get(url_for('stats_api_v1.get_artist_map', user_name=self.user['musicbrainz_id']),
                                    query_string={'range': 'all_time', 'force_recalculate': 'true'})
@@ -433,8 +434,10 @@ class StatsAPITestCase(IntegrationTestCase):
     def test_get_country_code_mbid_country_mapping_failure(self, mock_requests):
         """ Test to check if appropriate message is returned if fetching country code fetching fails """
         # Mock fetching country data from labs.api.listenbrainz.org
-        mock_requests.post("{}/artist-country-code-from-artist-mbid/json".format(LISTENBRAINZ_LABS_API_URL),
-                           status_code=500)
+        mock_requests.post(
+            f"{LISTENBRAINZ_LABS_API_URL}/artist-country-code-from-artist-mbid/json",
+            status_code=500,
+        )
 
         response = self.client.get(url_for('stats_api_v1.get_artist_map', user_name=self.user['musicbrainz_id']),
                                    query_string={'range': 'all_time', 'force_recalculate': 'true'})
@@ -480,7 +483,7 @@ class StatsAPITestCase(IntegrationTestCase):
                     response = self.client.get(url_for(endpoint), query_string={'range': range_})
                     self.assertSitewideStatEqual(payload, response, entity, range_, 25)
 
-            with self.subTest(f"test api returns 204 if stat not calculated"):
+            with self.subTest("test api returns 204 if stat not calculated"):
                 response = self.client.get(url_for(endpoint), query_string={'range': 'this_week'})
                 self.assertEqual(response.status_code, 204)
 

@@ -81,6 +81,8 @@ def parse_boolean_arg(name, default=None):
 
     value = value.lower()
     if value not in ["true", "false"]:
-        raise APIBadRequest("Invalid %s argument: %s. Must be 'true' or 'false'" % (name, value))
+        raise APIBadRequest(
+            f"Invalid {name} argument: {value}. Must be 'true' or 'false'"
+        )
 
-    return True if value == "true" else False
+    return value == "true"

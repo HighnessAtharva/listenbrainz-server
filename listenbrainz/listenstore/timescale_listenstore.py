@@ -67,15 +67,13 @@ class TimescaleListenStore:
         Args:
             user_id: the user to get listens for
         """
-        cached_count = cache.get(REDIS_USER_LISTEN_COUNT + str(user_id))
-        if cached_count:
+        if cached_count := cache.get(REDIS_USER_LISTEN_COUNT + str(user_id)):
             return cached_count
 
         with timescale.engine.connect() as connection:
             query = "SELECT count, created FROM listen_user_metadata WHERE user_id = :user_id"
             result = connection.execute(sqlalchemy.text(query), {"user_id": user_id})
-            row = result.fetchone()
-            if row:
+            if row := result.fetchone():
                 count, created = row.count, row.created
             else:
                 # we can reach here only in tests, because we create entries in listen_user_metadata
@@ -96,9 +94,7 @@ class TimescaleListenStore:
         with timescale.engine.connect() as connection:
             result = connection.execute(text(query), {"user_id": user_id})
             row = result.fetchone()
-            if row is None:
-                return 0, 0
-            return row.min_ts, row.max_ts
+            return (0, 0) if row is None else (row.min_ts, row.max_ts)
 
     def get_total_listen_count(self):
         """ Returns the total number of listens stored in the ListenStore.
@@ -129,10 +125,7 @@ class TimescaleListenStore:
             which rows were inserted into the DB. If the row is not listed in the return values, it was a duplicate.
         """
 
-        submit = []
-        for listen in listens:
-            submit.append(listen.to_timescale())
-
+        submit = [listen.to_timescale() for listen in listens]
         query = """
             WITH listens AS (
                 INSERT INTO listen (listened_at, track_name, user_name, user_id, data)
@@ -160,10 +153,10 @@ class TimescaleListenStore:
             try:
                 execute_values(curs, query, submit, template=None)
                 while True:
-                    result = curs.fetchone()
-                    if not result:
+                    if result := curs.fetchone():
+                        inserted_rows.append((result[0], result[1], result[2], result[3]))
+                    else:
                         break
-                    inserted_rows.append((result[0], result[1], result[2], result[3]))
             except UntranslatableCharacter:
                 conn.rollback()
                 return
@@ -187,11 +180,7 @@ class TimescaleListenStore:
         """
         if from_ts and to_ts and from_ts >= to_ts:
             raise ValueError("from_ts should be less than to_ts")
-        if from_ts:
-            order = ORDER_ASC
-        else:
-            order = ORDER_DESC
-
+        order = ORDER_ASC if from_ts else ORDER_DESC
         min_user_ts, max_user_ts = self.get_timestamps_for_user(user["id"])
 
         if min_user_ts == 0 and max_user_ts == 0:
@@ -537,7 +526,7 @@ class TimescaleListenStore:
             with timescale.engine.begin() as connection:
                 connection.execute(sqlalchemy.text(query), {"user_id": user_id})
         except psycopg2.OperationalError as e:
-            self.log.error("Cannot delete listens for user: %s" % str(e))
+            self.log.error(f"Cannot delete listens for user: {str(e)}")
             raise
 
     def delete_listen(self, listened_at: int, user_id: int, recording_msid: str):
@@ -566,7 +555,7 @@ class TimescaleListenStore:
                     {"listened_at": listened_at, "user_id": user_id, "recording_msid": recording_msid}
                 )
         except psycopg2.OperationalError as e:
-            self.log.error("Cannot delete listen for user: %s" % str(e))
+            self.log.error(f"Cannot delete listen for user: {str(e)}")
             raise TimescaleListenStoreException
 
 

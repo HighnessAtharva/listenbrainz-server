@@ -59,13 +59,12 @@ def process_chunk(chunk_start):
         )
         user_mapping = {row["musicbrainz_id"]: row["id"] for row in username_mapping_result}
 
-    missing_users = set(usernames) - set(user_mapping.keys())
-    if missing_users:
+    if missing_users := set(usernames) - set(user_mapping.keys()):
         # If we have listens with a username that isn't in the user table, report it but only
         # if we haven't seen these usernames before
         if missing_users - global_missing_users:
             global_missing_users.update(missing_users)
-            print(f" - oops - found some usernames who have listens but no user row")
+            print(" - oops - found some usernames who have listens but no user row")
             print(f"   all missing users are now {global_missing_users}")
 
     if not user_mapping:
@@ -141,4 +140,4 @@ def print_status_update(chunk_count, number_chunks, start_time):
         remdelta = timedelta(seconds=remaining)
         print(f" - Done {chunk_count}/{number_chunks} in {str(durdelta)}; {str(remdelta)} remaining")
     else:
-        print(f" No chunks processed")
+        print(" No chunks processed")

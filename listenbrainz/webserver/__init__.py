@@ -25,8 +25,10 @@ def load_config(app):
     # Load configuration files: If we're running under a docker deployment, wait until
     config_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'config.py')
     if deploy_env:
-        print("Checking if consul template generated config file exists: %s" % config_file)
-        for i in range(CONSUL_CONFIG_FILE_RETRY_COUNT):
+        print(
+            f"Checking if consul template generated config file exists: {config_file}"
+        )
+        for _ in range(CONSUL_CONFIG_FILE_RETRY_COUNT):
             if not os.path.exists(config_file):
                 sleep(1)
 
@@ -34,7 +36,7 @@ def load_config(app):
             print("No configuration file generated yet. Retried %d times, exiting." % CONSUL_CONFIG_FILE_RETRY_COUNT)
             sys.exit(-1)
 
-        print("loading consul config file %s)" % config_file)
+        print(f"loading consul config file {config_file})")
 
     app.config.from_pyfile(config_file)
     # Output config values and some other info
@@ -44,9 +46,9 @@ def load_config(app):
 
         try:
             with open('.git-version') as git_version_file:
-                print('Running on git commit: %s' % git_version_file.read().strip())
+                print(f'Running on git commit: {git_version_file.read().strip()}')
         except IOError as e:
-            print('Unable to retrieve git commit. Error: %s', str(e))
+            print('Unable to retrieve git commit. Error: %s', e)
 
 
 def check_ratelimit_token_whitelist(auth_token):
@@ -297,19 +299,28 @@ def _register_blueprints(app):
     app.register_blueprint(api_bp, url_prefix=API_PREFIX)
 
     from listenbrainz.webserver.views.feedback_api import feedback_api_bp
-    app.register_blueprint(feedback_api_bp, url_prefix=API_PREFIX+'/feedback')
+    app.register_blueprint(feedback_api_bp, url_prefix=f'{API_PREFIX}/feedback')
 
     from listenbrainz.webserver.views.missing_musicbrainz_data_api import missing_musicbrainz_data_api_bp
-    app.register_blueprint(missing_musicbrainz_data_api_bp, url_prefix=API_PREFIX+'/missing/musicbrainz')
+    app.register_blueprint(
+        missing_musicbrainz_data_api_bp,
+        url_prefix=f'{API_PREFIX}/missing/musicbrainz',
+    )
 
     from listenbrainz.webserver.views.playlist_api import playlist_api_bp
-    app.register_blueprint(playlist_api_bp, url_prefix=API_PREFIX+'/playlist')
+    app.register_blueprint(playlist_api_bp, url_prefix=f'{API_PREFIX}/playlist')
 
     from listenbrainz.webserver.views.recommendations_cf_recording_feedback_api import recommendation_feedback_api_bp
-    app.register_blueprint(recommendation_feedback_api_bp, url_prefix=API_PREFIX+'/recommendation/feedback')
+    app.register_blueprint(
+        recommendation_feedback_api_bp,
+        url_prefix=f'{API_PREFIX}/recommendation/feedback',
+    )
 
     from listenbrainz.webserver.views.recommendations_cf_recording_api import recommendations_cf_recording_api_bp
-    app.register_blueprint(recommendations_cf_recording_api_bp, url_prefix=API_PREFIX+'/cf/recommendation')
+    app.register_blueprint(
+        recommendations_cf_recording_api_bp,
+        url_prefix=f'{API_PREFIX}/cf/recommendation',
+    )
 
     from listenbrainz.webserver.views.do_not_recommend_api import do_not_recommend_api_bp
     app.register_blueprint(do_not_recommend_api_bp, url_prefix=API_PREFIX)
@@ -318,13 +329,13 @@ def _register_blueprints(app):
     app.register_blueprint(social_api_bp, url_prefix=API_PREFIX)
 
     from listenbrainz.webserver.views.stats_api import stats_api_bp
-    app.register_blueprint(stats_api_bp, url_prefix=API_PREFIX+'/stats')
+    app.register_blueprint(stats_api_bp, url_prefix=f'{API_PREFIX}/stats')
 
     from listenbrainz.webserver.views.fresh_releases import fresh_releases_bp
     app.register_blueprint(fresh_releases_bp, url_prefix=API_PREFIX)
 
     from listenbrainz.webserver.views.status_api import status_api_bp
-    app.register_blueprint(status_api_bp, url_prefix=API_PREFIX+'/status')
+    app.register_blueprint(status_api_bp, url_prefix=f'{API_PREFIX}/status')
 
     from listenbrainz.webserver.views.user_timeline_event_api import user_timeline_event_api_bp
     app.register_blueprint(user_timeline_event_api_bp, url_prefix=API_PREFIX)
@@ -333,16 +344,20 @@ def _register_blueprints(app):
     app.register_blueprint(pinned_recording_api_bp, url_prefix=API_PREFIX)
 
     from listenbrainz.webserver.views.metadata_api import metadata_bp
-    app.register_blueprint(metadata_bp, url_prefix=API_PREFIX+'/metadata')
+    app.register_blueprint(metadata_bp, url_prefix=f'{API_PREFIX}/metadata')
 
     from listenbrainz.webserver.views.user_settings_api import user_settings_api_bp
-    app.register_blueprint(user_settings_api_bp, url_prefix=API_PREFIX+'/settings')
+    app.register_blueprint(
+        user_settings_api_bp, url_prefix=f'{API_PREFIX}/settings'
+    )
 
     from listenbrainz.webserver.views.explore_api import explore_api_bp
-    app.register_blueprint(explore_api_bp, url_prefix=API_PREFIX+'/explore')
+    app.register_blueprint(explore_api_bp, url_prefix=f'{API_PREFIX}/explore')
 
     from listenbrainz.webserver.views.art import art_bp
     _register_blueprint_with_context(app, art_bp, url_prefix='/art')
 
     from listenbrainz.webserver.views.art_api import art_api_bp
-    _register_blueprint_with_context(app, art_api_bp, url_prefix=API_PREFIX+'/art')
+    _register_blueprint_with_context(
+        app, art_api_bp, url_prefix=f'{API_PREFIX}/art'
+    )

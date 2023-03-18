@@ -69,7 +69,10 @@ def web_musicbrainz_needed(func):
     def decorator(*args, **kwargs):
         # if config item is missing, consider the database to be up (useful for local development)
         is_musicbrainz_up = current_app.config.get("IS_MUSICBRAINZ_UP", True)
-        if not is_musicbrainz_up:
-            return redirect(url_for("index.musicbrainz_offline"))
-        return func(*args, **kwargs)
+        return (
+            func(*args, **kwargs)
+            if is_musicbrainz_up
+            else redirect(url_for("index.musicbrainz_offline"))
+        )
+
     return decorator

@@ -56,10 +56,7 @@ def _prepare_query_message(query, **params):
         raise InvalidSparkRequestError
 
     if params:
-        message['params'] = {}
-        for key, value in params.items():
-            message['params'][key] = value
-
+        message['params'] = dict(params)
     return orjson.dumps(message)
 
 

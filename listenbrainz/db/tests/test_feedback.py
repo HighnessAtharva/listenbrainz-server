@@ -332,14 +332,11 @@ class FeedbackDatabaseTestCase(DatabaseTestCase, TimescaleTestCase):
     def test_get_feedback_for_multiple_recordings_for_user(self):
         self.insert_test_data(self.user["id"])
 
-        recording_list = []
-
-        # recording_msids for which feedback records are inserted
-        recording_list.append(self.sample_feedback[0]["recording_msid"])
-        recording_list.append(self.sample_feedback[1]["recording_msid"])
-
-        # recording_msid for which feedback record doesn't exist
-        recording_list.append("b83fd3c3-449c-49be-a874-31d7cf26d946")
+        recording_list = [
+            self.sample_feedback[0]["recording_msid"],
+            self.sample_feedback[1]["recording_msid"],
+            "b83fd3c3-449c-49be-a874-31d7cf26d946",
+        ]
 
         result = db_feedback.get_feedback_for_multiple_recordings_for_user(
             user_id=self.user["id"],

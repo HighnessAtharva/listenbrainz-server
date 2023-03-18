@@ -222,7 +222,7 @@ PRIVATE_TABLES_TIMESCALE = {
 }
 
 
-def dump_postgres_db(location, dump_time=datetime.today(), threads=DUMP_DEFAULT_THREAD_COUNT):
+def dump_postgres_db(location, dump_time=datetime.now(), threads=DUMP_DEFAULT_THREAD_COUNT):
     """ Create postgres database dump in the specified location
 
         Arguments:
@@ -259,8 +259,7 @@ def dump_postgres_db(location, dump_time=datetime.today(), threads=DUMP_DEFAULT_
     return private_dump, public_dump
 
 
-def dump_timescale_db(location: str, dump_time: datetime = datetime.today(),
-                      threads: int = DUMP_DEFAULT_THREAD_COUNT) -> Optional[Tuple[str, str]]:
+def dump_timescale_db(location: str, dump_time: datetime = datetime.now(), threads: int = DUMP_DEFAULT_THREAD_COUNT) -> Optional[Tuple[str, str]]:
     """ Create timescale database (excluding listens) dump in the specified location
 
         Arguments:
@@ -298,7 +297,7 @@ def dump_timescale_db(location: str, dump_time: datetime = datetime.today(),
     return private_timescale_dump, public_timescale_dump
 
 
-def dump_feedback_for_spark(location, dump_time=datetime.today(), threads=DUMP_DEFAULT_THREAD_COUNT):
+def dump_feedback_for_spark(location, dump_time=datetime.now(), threads=DUMP_DEFAULT_THREAD_COUNT):
     """ Dump user/recommendation feedback from postgres into spark format.
 
         Arguments:
@@ -670,9 +669,7 @@ def get_dump_entry(dump_id):
         """), {
             'dump_id': dump_id,
         })
-        if result.rowcount > 0:
-            return result.mappings().first()
-        return None
+        return result.mappings().first() if result.rowcount > 0 else None
 
 
 def import_postgres_dump(private_dump_archive_path=None,
@@ -787,26 +784,25 @@ def _import_dump(archive_path, db_engine: sqlalchemy.engine.Engine,
                 if file_name == 'SCHEMA_SEQUENCE':
                     # Verifying schema version
                     schema_seq = int(tar.extractfile(member).read().strip())
-                    if schema_seq != schema_version:
+                    if schema_seq == schema_version:
+                        current_app.logger.info('Schema version verified.')
+
+                    else:
                         raise SchemaMismatchException('Incorrect schema version! Expected: %d, got: %d.'
                                                       'Please, get the latest version of the dump.'
                                                       % (schema_version, schema_seq))
-                    else:
-                        current_app.logger.info('Schema version verified.')
+                elif file_name in tables:
+                    current_app.logger.info('Importing data into %s table...', file_name)
+                    try:
+                        table, fields = _escape_table_columns(file_name, tables[file_name])
+                        query = SQL("COPY {table}({fields}) FROM STDIN").format(fields=fields, table=table)
+                        cursor.copy_expert(query, tar.extractfile(member))
+                        connection.commit()
+                    except Exception:
+                        current_app.logger.critical('Exception while importing table %s: ', file_name, exc_info=True)
+                        raise
 
-                else:
-                    if file_name in tables:
-                        current_app.logger.info('Importing data into %s table...', file_name)
-                        try:
-                            table, fields = _escape_table_columns(file_name, tables[file_name])
-                            query = SQL("COPY {table}({fields}) FROM STDIN").format(fields=fields, table=table)
-                            cursor.copy_expert(query, tar.extractfile(member))
-                            connection.commit()
-                        except Exception:
-                            current_app.logger.critical('Exception while importing table %s: ', file_name, exc_info=True)
-                            raise
-
-                        current_app.logger.info('Imported table %s', file_name)
+                    current_app.logger.info('Imported table %s', file_name)
     finally:
         connection.close()
         xz.stdout.close()
@@ -915,7 +911,7 @@ def _parse_ftp_name_with_id(name):
     """
     parts = name.split("-")
     if len(parts) != 6:
-        raise ValueError("Filename '{}' expected to have 6 parts separated by -".format(name))
+        raise ValueError(f"Filename '{name}' expected to have 6 parts separated by -")
     _, _, dumpid, d, t, _ = parts
     return int(dumpid), datetime.strptime(d + t, "%Y%m%d%H%M%S")
 
@@ -930,9 +926,9 @@ def _parse_ftp_name_without_id(name):
     """
     parts = name.split("-")
     if len(parts) != 5:
-        raise ValueError("Filename '{}' expected to have 5 parts separated by -".format(name))
+        raise ValueError(f"Filename '{name}' expected to have 5 parts separated by -")
     _, _, d, t, _ = parts
-    return d + '-' + t, datetime.strptime(d + t, "%Y%m%d%H%M%S")
+    return f'{d}-{t}', datetime.strptime(d + t, "%Y%m%d%H%M%S")
 
 
 def check_ftp_dump_ages():
@@ -949,7 +945,7 @@ def check_ftp_dump_ages():
             msg = "Full dump %d is more than %d days old: %s\n" % (dump_id, FULLEXPORT_MAX_AGE, str(age))
             print(msg, end="")
         else:
-            print("Full dump %s is %s old, good!" % (dump_id, str(age)))
+            print(f"Full dump {dump_id} is {str(age)} old, good!")
     except Exception as err:
         msg = "Cannot fetch full dump age: %s\n\n%s" % (str(err), traceback.format_exc())
 
@@ -960,7 +956,7 @@ def check_ftp_dump_ages():
             msg = "Incremental dump %s is more than %s hours old: %s\n" % (dump_id, INCREMENTAL_MAX_AGE, str(age))
             print(msg, end="")
         else:
-            print("Incremental dump %s is %s old, good!" % (dump_id, str(age)))
+            print(f"Incremental dump {dump_id} is {str(age)} old, good!")
     except Exception as err:
         msg = "Cannot fetch incremental dump age: %s\n\n%s" % (str(err), traceback.format_exc())
 
@@ -971,7 +967,7 @@ def check_ftp_dump_ages():
             msg = "Feedback dump %s is more than %s days old: %s\n" % (dump_id, FEEDBACK_MAX_AGE, str(age))
             print(msg, end="")
         else:
-            print("Feedback dump %s is %s old, good!" % (dump_id, str(age)))
+            print(f"Feedback dump {dump_id} is {str(age)} old, good!")
     except Exception as err:
         msg = "Cannot fetch feedback dump age: %s\n\n%s" % (str(err), traceback.format_exc())
 

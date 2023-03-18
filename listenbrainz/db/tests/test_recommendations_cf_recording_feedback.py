@@ -107,7 +107,7 @@ class RecommendationFeedbackDatabaseTestCase(DatabaseTestCase):
         self.assertEqual(result[0].rating, self.sample_feedback[0]["rating"])
 
         feedback_love = []
-        for i in range(60):
+        for _ in range(60):
             submit_obj = RecommendationFeedbackSubmit(
                 user_id=self.user2['id'],
                 recording_mbid=str(uuid.uuid4()),
@@ -120,7 +120,7 @@ class RecommendationFeedbackDatabaseTestCase(DatabaseTestCase):
             feedback_love.insert(0, submit_obj)
 
         feedback_hate = []
-        for i in range(50):
+        for _ in range(50):
             submit_obj = RecommendationFeedbackSubmit(
                 user_id=self.user2['id'],
                 recording_mbid=str(uuid.uuid4()),

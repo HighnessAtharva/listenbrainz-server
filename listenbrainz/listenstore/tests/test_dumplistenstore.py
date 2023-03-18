@@ -44,10 +44,10 @@ class TestDumpListenStore(DatabaseTestCase, TimescaleTestCase):
     def _insert_with_created(self, listens):
         """ Insert a batch of listens with 'created' field.
         """
-        submit = []
-        for listen in listens:
-            submit.append((*listen.to_timescale(), listen.inserted_timestamp))
-
+        submit = [
+            (*listen.to_timescale(), listen.inserted_timestamp)
+            for listen in listens
+        ]
         query = """INSERT INTO listen (listened_at, track_name, user_name, user_id, data, created)
                         VALUES %s
                    ON CONFLICT (listened_at, track_name, user_id)
@@ -220,7 +220,7 @@ class TestDumpListenStore(DatabaseTestCase, TimescaleTestCase):
         # create a temp archive with incorrect SCHEMA_VERSION_CORE
         temp_dir = tempfile.mkdtemp()
         archive_name = 'temp_dump'
-        archive_path = os.path.join(temp_dir, archive_name + '.tar.xz')
+        archive_path = os.path.join(temp_dir, f'{archive_name}.tar.xz')
         archive_path = self.create_test_dump(
             archive_name=archive_name,
             archive_path=archive_path,
@@ -234,7 +234,7 @@ class TestDumpListenStore(DatabaseTestCase, TimescaleTestCase):
 
         temp_dir = tempfile.mkdtemp()
         archive_name = 'temp_dump'
-        archive_path = os.path.join(temp_dir, archive_name + '.tar.xz')
+        archive_path = os.path.join(temp_dir, f'{archive_name}.tar.xz')
 
         archive_path = self.create_test_dump(archive_name=archive_name, archive_path=archive_path)
 

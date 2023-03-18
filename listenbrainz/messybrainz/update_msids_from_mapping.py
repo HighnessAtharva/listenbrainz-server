@@ -105,7 +105,7 @@ class JSONBMsidMappingUpdater(BaseMsidMappingUpdater):
     """ Updater for tables which have recording msid and recording mbid in a jsonb column """
 
     def fetch_msids_query(self) -> str:
-        return f"""
+        return """
             SELECT (metadata->>'recording_msid')::UUID AS recording_msid
               FROM user_timeline_event
              WHERE (metadata->>'recording_mbid') IS NULL

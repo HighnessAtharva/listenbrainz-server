@@ -171,8 +171,7 @@ json_response_1 = [
 class MainTestCase(flask_testing.TestCase):
 
     def create_app(self):
-        app = create_app()
-        return app
+        return create_app()
 
     def setUp(self):
         flask_testing.TestCase.setUp(self)

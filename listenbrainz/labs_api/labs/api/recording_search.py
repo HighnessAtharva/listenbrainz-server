@@ -58,13 +58,14 @@ class RecordingSearchQuery(Query):
         hits = self.client.collections[COLLECTION_NAME].documents.search(
             search_parameters)
 
-        output = []
-        for hit in hits['hits']:
-            output.append({'artist_credit_name': hit['document']['artist_credit_name'],
-                           'artist_credit_id': hit['document']['artist_credit_id'],
-                           'release_name': hit['document']['release_name'],
-                           'release_mbid': hit['document']['release_mbid'],
-                           'recording_name': hit['document']['recording_name'],
-                           'recording_mbid': hit['document']['recording_mbid']})
-
-        return output
+        return [
+            {
+                'artist_credit_name': hit['document']['artist_credit_name'],
+                'artist_credit_id': hit['document']['artist_credit_id'],
+                'release_name': hit['document']['release_name'],
+                'release_mbid': hit['document']['release_mbid'],
+                'recording_name': hit['document']['recording_name'],
+                'recording_mbid': hit['document']['recording_mbid'],
+            }
+            for hit in hits['hits']
+        ]

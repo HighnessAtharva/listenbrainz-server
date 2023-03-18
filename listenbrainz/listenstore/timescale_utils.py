@@ -263,8 +263,7 @@ def add_missing_to_listen_users_metadata():
     try:
         with db.engine.connect() as connection:
             result = connection.execute(text(query))
-            for row in result:
-                user_list.append(row[0])
+            user_list.extend(row[0] for row in result)
     except psycopg2.OperationalError as e:
         logger.error("Cannot query db to fetch user list." %
                      str(e), exc_info=True)
@@ -341,7 +340,9 @@ def unlock_cron():
     try:
         subprocess.run(["/usr/local/bin/python", "admin/cron_lock.py", "unlock-cron", "cont-agg"])
     except subprocess.CalledProcessError as err:
-        logger.error("Cannot unlock cron after updating continuous aggregates: %s" % str(err))
+        logger.error(
+            f"Cannot unlock cron after updating continuous aggregates: {str(err)}"
+        )
 
 
 def refresh_top_manual_mappings():

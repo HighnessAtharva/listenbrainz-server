@@ -80,7 +80,9 @@ class ServerTestCase(unittest.TestCase):
             if _message == message and _category == category:
                 return True
 
-        raise AssertionError("Message '%s' in category '%s' wasn't flashed" % (message, category))
+        raise AssertionError(
+            f"Message '{message}' in category '{category}' wasn't flashed"
+        )
 
     def assertTemplateUsed(self, name):
         """
@@ -106,7 +108,7 @@ class ServerTestCase(unittest.TestCase):
         try:
             self.assertEqual(self.get_context_variable(name), value, message)
         except ValueError:
-            self.fail(message or "Context variable does not exist: %s" % name)
+            self.fail(message or f"Context variable does not exist: {name}")
 
     assert_context = assertContext
 
@@ -120,12 +122,16 @@ class ServerTestCase(unittest.TestCase):
         not_redirect = "HTTP Status %s expected but got %d" % (valid_status_code_str, response.status_code)
 
         self.assertIn(response.status_code, valid_status_codes, message or not_redirect)
-        location_mismatch = "Expected redirect location %s but got %s" % (response.location, location)
+        location_mismatch = (
+            f"Expected redirect location {response.location} but got {location}"
+        )
         self.assertTrue(response.location.endswith(location), message or location_mismatch)
 
     def assertStatus(self, response, status_code, message=None):
-        message = message or 'HTTP Status %s expected but got %s' \
-                             % (status_code, response.status_code)
+        message = (
+            message
+            or f'HTTP Status {status_code} expected but got {response.status_code}'
+        )
         self.assertEqual(response.status_code, status_code, message)
 
     def assert200(self, response, message=None):

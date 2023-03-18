@@ -51,8 +51,8 @@ def _get_spotify_token(grant_type: str, token: str) -> requests.Response:
 
     client_id = current_app.config['SPOTIFY_CLIENT_ID']
     client_secret = current_app.config['SPOTIFY_CLIENT_SECRET']
-    auth_header = base64.b64encode((client_id + ':' + client_secret).encode('ascii'))
-    headers = {'Authorization': 'Basic %s' % auth_header.decode('ascii')}
+    auth_header = base64.b64encode(f'{client_id}:{client_secret}'.encode('ascii'))
+    headers = {'Authorization': f"Basic {auth_header.decode('ascii')}"}
 
     token_key = "refresh_token" if grant_type == "refresh_token" else "code"
     payload = {
@@ -183,7 +183,7 @@ class SpotifyService(ImporterService):
         user = spotify.get_user_import_details(user_id)
         if user:
             def date_to_iso(date):
-                return date.isoformat() + "Z" if date else None
+                return f"{date.isoformat()}Z" if date else None
 
             user['latest_listened_at_iso'] = date_to_iso(user['latest_listened_at'])
             user['last_updated_iso'] = date_to_iso(user['last_updated'])

@@ -87,9 +87,9 @@ def insert_track_artists(curs, data):
     track_ids = []
     for track_id, artists in data.items():
         track_ids.append(track_id)
-        for idx, artist in enumerate(artists):
-            values.append((track_id, artist["id"], idx))
-
+        values.extend(
+            (track_id, artist["id"], idx) for idx, artist in enumerate(artists)
+        )
     # delete before insert so that if existing artists have changed the updates are captured properly.
     # say if an artist id was removed from a track then a ON CONFLICT DO UPDATE would insert the new artist
     # but not remove the outdated entry. so delete first and then insert.

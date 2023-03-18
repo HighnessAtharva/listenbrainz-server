@@ -84,14 +84,16 @@ class TimescaleWriterSubscriber(ConsumerProducerMixin):
                 'title': listen['track_metadata']['track_name'],
                 'release': listen['track_metadata'].get('release_name'),
             }
-            track_number = listen['track_metadata']['additional_info'].get('track_number')
-            if track_number:
+            if track_number := listen['track_metadata']['additional_info'].get(
+                'track_number'
+            ):
                 data['track_number'] = str(track_number)
 
-            duration = listen['track_metadata']['additional_info'].get('duration')
-            if duration:
+            if duration := listen['track_metadata']['additional_info'].get(
+                'duration'
+            ):
                 data['duration'] = duration * 1000  # convert into ms
-            else:  # try duration_ms field next
+            else:
                 duration_ms = listen['track_metadata']['additional_info'].get('duration_ms')
                 if duration:
                     data['duration'] = duration_ms
@@ -130,7 +132,10 @@ class TimescaleWriterSubscriber(ConsumerProducerMixin):
         try:
             rows_inserted = timescale_connection._ts.insert(data)
         except psycopg2.OperationalError as err:
-            current_app.logger.error("Cannot write data to listenstore: %s. Sleep." % str(err), exc_info=True)
+            current_app.logger.error(
+                f"Cannot write data to listenstore: {str(err)}. Sleep.",
+                exc_info=True,
+            )
             time.sleep(self.ERROR_RETRY_DELAY)
             return LISTEN_INSERT_ERROR_SENTINEL
 
@@ -144,10 +149,10 @@ class TimescaleWriterSubscriber(ConsumerProducerMixin):
             current_app.logger.error("Could not update listen count per day in redis", exc_info=True)
 
         unique = []
-        inserted_index = {}
-        for inserted in rows_inserted:
-            inserted_index['%d-%s-%s' % (inserted[0], inserted[1], inserted[2])] = 1
-
+        inserted_index = {
+            '%d-%s-%s' % (inserted[0], inserted[1], inserted[2]): 1
+            for inserted in rows_inserted
+        }
         for listen in data:
             k = '%d-%s-%s' % (listen.ts_since_epoch, listen.data['track_name'], listen.user_name)
             if k in inserted_index:

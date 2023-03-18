@@ -143,6 +143,4 @@ class CritiqueBrainzService(ExternalService):
         if not review_ids:
             return None
         response = requests.get(CRITIQUEBRAINZ_REVIEW_FETCH_URL, params={"review_ids": ",".join(review_ids)})
-        if response.status_code != 200:
-            return None
-        return response.json()["reviews"]
+        return None if response.status_code != 200 else response.json()["reviews"]

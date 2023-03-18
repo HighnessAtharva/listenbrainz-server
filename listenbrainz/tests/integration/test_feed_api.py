@@ -36,11 +36,12 @@ class FeedAPITestCase(ListenAPIIntegrationTestCase):
         return following_user
 
     def remove_own_follow_events(self, payload: dict) -> dict:
-        new_events = []
-        for event in payload['events']:
-            if event['event_type'] == 'follow' and event['user_name'] == self.main_user['musicbrainz_id']:
-                continue
-            new_events.append(event)
+        new_events = [
+            event
+            for event in payload['events']
+            if event['event_type'] != 'follow'
+            or event['user_name'] != self.main_user['musicbrainz_id']
+        ]
         payload['events'] = new_events
         payload['count'] = len(new_events)
         return payload

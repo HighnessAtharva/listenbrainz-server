@@ -41,15 +41,14 @@ class SpotifyIdFromMBIDQuery(Query):
         """
         execute_values(curs, query, [(mbid,) for mbid in mbids], page_size=len(mbids))
 
-        metadata = {}
-        for row in curs.fetchall():
-            metadata[row[0]] = {
+        return {
+            row[0]: {
                 "track_name": row[1],
                 "artist_name": row[2],
-                "release_name": row[3]
+                "release_name": row[3],
             }
-
-        return metadata
+            for row in curs.fetchall()
+        }
 
     def fetch(self, params, offset=-1, count=-1):
         mbids = []

@@ -172,8 +172,7 @@ def insert_playlists_cover_art(year, data):
         cover_arts = {}
         for track in playlist["track"]:
             mbid = track["identifier"].split("/")[-1]
-            r = recordings.get(mbid)
-            if r:
+            if r := recordings.get(mbid):
                 caa_release_mbid = r["caa_release_mbid"]
                 caa_id = r["caa_id"]
                 if caa_id and caa_release_mbid:
@@ -205,7 +204,7 @@ def insert_playlists(year, data):
         connection.commit()
     except psycopg2.errors.OperationalError:
         connection.rollback()
-        current_app.logger.error(f"Error while inserting playlists:", exc_info=True)
+        current_app.logger.error("Error while inserting playlists:", exc_info=True)
 
 
 def create_tracks_of_the_year(year):
@@ -289,12 +288,12 @@ def notify_yim_users(year):
         """), {"year": year})
         rows = result.mappings().fetchall()
 
+    # cannot use url_for because we do not set SERVER_NAME and
+    # a request_context will not be available in this script.
+    base_url = "https://listenbrainz.org"
     for row in rows:
         user_name = row["musicbrainz_id"]
 
-        # cannot use url_for because we do not set SERVER_NAME and
-        # a request_context will not be available in this script.
-        base_url = "https://listenbrainz.org"
         year_in_music = f"{base_url}/user/{user_name}/year-in-music/"
         params = {
             "user_name": user_name,

@@ -137,8 +137,7 @@ def run_daily_jams(user, existing_url, service):
     }
 
     if user["export_to_spotify"]:
-        spotify = _get_spotify_details(user["id"], service)
-        if spotify:
+        if spotify := _get_spotify_details(user["id"], service):
             if existing_url:
                 spotify["existing_urls"] = [existing_url]
             args["spotify"] = spotify

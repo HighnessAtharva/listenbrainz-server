@@ -109,7 +109,7 @@ class PinnedRecAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("pinned_rec_api_bp_v1.pin_recording_for_user"),
             data=json.dumps(self.pinned_rec_samples[0]),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
             content_type="application/json",
         )
 
@@ -122,7 +122,7 @@ class PinnedRecAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("pinned_rec_api_bp_v1.pin_recording_for_user"),
             data=json.dumps(self.pinned_rec_samples[0]),
-            headers={"Authorization": "Token {}".format("-- This is an invalid auth token --")},
+            headers={"Authorization": 'Token -- This is an invalid auth token --'},
             content_type="application/json",
         )
 
@@ -139,7 +139,7 @@ class PinnedRecAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("pinned_rec_api_bp_v1.pin_recording_for_user"),
             data=json.dumps(invalid_pin_1),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
             content_type="application/json",
         )
 
@@ -157,7 +157,7 @@ class PinnedRecAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("pinned_rec_api_bp_v1.pin_recording_for_user"),
             data=json.dumps(invalid_pin_1),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
             content_type="application/json",
         )
 
@@ -177,7 +177,7 @@ class PinnedRecAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("pinned_rec_api_bp_v1.pin_recording_for_user"),
             data=json.dumps(invalid_pin_1),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
             content_type="application/json",
         )
 
@@ -196,7 +196,7 @@ class PinnedRecAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("pinned_rec_api_bp_v1.pin_recording_for_user"),
             data=json.dumps(invalid_pin_1),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
             content_type="application/json",
         )
 
@@ -209,13 +209,13 @@ class PinnedRecAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("pinned_rec_api_bp_v1.pin_recording_for_user"),
             data=json.dumps(self.pinned_rec_samples[0]),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
             content_type="application/json",
         )
 
         response = self.client.post(
             url_for("pinned_rec_api_bp_v1.unpin_recording_for_user"),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
             content_type="application/json",
         )
 
@@ -226,7 +226,7 @@ class PinnedRecAPITestCase(IntegrationTestCase):
         """Tests that unpin endpoint returns 404 when no pinned is found to unpin"""
         response = self.client.post(
             url_for("pinned_rec_api_bp_v1.unpin_recording_for_user"),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
             content_type="application/json",
         )
 
@@ -237,7 +237,7 @@ class PinnedRecAPITestCase(IntegrationTestCase):
         """Tests that unpin endpoint returns 401 when auth token is invalid"""
         response = self.client.post(
             url_for("pinned_rec_api_bp_v1.unpin_recording_for_user"),
-            headers={"Authorization": "Token {}".format("-- This is an invalid auth token --")},
+            headers={"Authorization": 'Token -- This is an invalid auth token --'},
             content_type="application/json",
         )
 
@@ -250,15 +250,18 @@ class PinnedRecAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("pinned_rec_api_bp_v1.pin_recording_for_user"),
             data=json.dumps(self.pinned_rec_samples[0]),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
             content_type="application/json",
         )
 
         pin_to_delete = db_pinned_rec.get_current_pin_for_user(self.user["id"])
 
         response = self.client.post(
-            url_for("pinned_rec_api_bp_v1.delete_pin_for_user", row_id=pin_to_delete.row_id),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
+            url_for(
+                "pinned_rec_api_bp_v1.delete_pin_for_user",
+                row_id=pin_to_delete.row_id,
+            ),
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
 
         self.assert200(response)
@@ -270,7 +273,7 @@ class PinnedRecAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("pinned_rec_api_bp_v1.pin_recording_for_user"),
             data=json.dumps(self.pinned_rec_samples[0]),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
             content_type="application/json",
         )
 
@@ -278,8 +281,11 @@ class PinnedRecAPITestCase(IntegrationTestCase):
         pin_to_delete = db_pinned_rec.get_current_pin_for_user(self.user["id"])
 
         response = self.client.post(
-            url_for("pinned_rec_api_bp_v1.delete_pin_for_user", row_id=pin_to_delete.row_id),
-            headers={"Authorization": "Token {}".format("-- This is an invalid auth token --")},
+            url_for(
+                "pinned_rec_api_bp_v1.delete_pin_for_user",
+                row_id=pin_to_delete.row_id,
+            ),
+            headers={"Authorization": 'Token -- This is an invalid auth token --'},
         )
         self.assert401(response)
         self.assertEqual(response.json["code"], 401)
@@ -289,13 +295,15 @@ class PinnedRecAPITestCase(IntegrationTestCase):
         self.client.post(
             url_for("pinned_rec_api_bp_v1.pin_recording_for_user"),
             data=json.dumps(self.pinned_rec_samples[0]),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
             content_type="application/json",
         )
 
         response = self.client.post(
             url_for("pinned_rec_api_bp_v1.delete_pin_for_user", row_id=98764),
-            headers={"Authorization": "Token {}".format(self.followed_user_1["auth_token"])},
+            headers={
+                "Authorization": f'Token {self.followed_user_1["auth_token"]}'
+            },
         )
 
         self.assert404(response)

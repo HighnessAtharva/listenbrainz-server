@@ -84,8 +84,8 @@ class FeedbackAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("feedback_api_v1.recording_feedback"),
             data=json.dumps(feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -97,8 +97,8 @@ class FeedbackAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("feedback_api_v1.recording_feedback"),
             data=json.dumps(feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -111,8 +111,8 @@ class FeedbackAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("feedback_api_v1.recording_feedback"),
             data=json.dumps(feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -154,8 +154,8 @@ class FeedbackAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("feedback_api_v1.recording_feedback"),
             data=json.dumps(incomplete_feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert400(response)
         self.assertEqual(
@@ -171,8 +171,8 @@ class FeedbackAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("feedback_api_v1.recording_feedback"),
             data=json.dumps(incomplete_feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert400(response)
         self.assertEqual(
@@ -185,8 +185,8 @@ class FeedbackAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("feedback_api_v1.recording_feedback"),
             data=json.dumps(empty_feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert400(response)
         self.assertEqual(
@@ -205,8 +205,8 @@ class FeedbackAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("feedback_api_v1.recording_feedback"),
             data=json.dumps(invalid_feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert400(response)
         self.assertEqual(
@@ -225,8 +225,8 @@ class FeedbackAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("feedback_api_v1.recording_feedback"),
             data=json.dumps(invalid_feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert400(response)
         self.assertEqual(response.json["code"], 400)
@@ -239,8 +239,8 @@ class FeedbackAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("feedback_api_v1.recording_feedback"),
             data=json.dumps(invalid_feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert400(response)
         self.assertEqual(response.json["code"], 400)
@@ -253,8 +253,8 @@ class FeedbackAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("feedback_api_v1.recording_feedback"),
             data=json.dumps(invalid_feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert400(response)
         self.assertEqual(response.json["code"], 400)
@@ -268,8 +268,8 @@ class FeedbackAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("feedback_api_v1.recording_feedback"),
             data=json.dumps(invalid_feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert400(response)
         self.assertEqual(response.json["code"], 400)
@@ -289,8 +289,8 @@ class FeedbackAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("feedback_api_v1.recording_feedback"),
             data=json.dumps(feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -310,8 +310,8 @@ class FeedbackAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("feedback_api_v1.recording_feedback"),
             data=json.dumps(updated_feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -338,8 +338,8 @@ class FeedbackAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("feedback_api_v1.recording_feedback"),
             data=json.dumps(feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -359,8 +359,8 @@ class FeedbackAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("feedback_api_v1.recording_feedback"),
             data=json.dumps(updated_feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -387,8 +387,8 @@ class FeedbackAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("feedback_api_v1.recording_feedback"),
             data=json.dumps(feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -408,8 +408,8 @@ class FeedbackAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("feedback_api_v1.recording_feedback"),
             data=json.dumps(updated_feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -433,8 +433,8 @@ class FeedbackAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("feedback_api_v1.recording_feedback"),
             data=json.dumps(feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -454,8 +454,8 @@ class FeedbackAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("feedback_api_v1.recording_feedback"),
             data=json.dumps(updated_feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -1001,7 +1001,7 @@ class FeedbackAPITestCase(IntegrationTestCase):
 
         # recording_msid for which feedback record doesn't exist
         non_existing_rec_msid = "b83fd3c3-449c-49be-a874-31d7cf26d946"
-        recordings = recordings + "," + non_existing_rec_msid
+        recordings = f"{recordings},{non_existing_rec_msid}"
 
         response = self.client.get(url_for("feedback_api_v1.get_feedback_for_recordings_for_user",
                                            user_name=self.user["musicbrainz_id"]), query_string={param: recordings})
@@ -1037,14 +1037,14 @@ class FeedbackAPITestCase(IntegrationTestCase):
 
         # recording_msid for which feedback record doesn't exist
         non_existing_rec_msid = "b83fd3c3-449c-49be-a874-31d7cf26d946"
-        recordings = recordings + "," + non_existing_rec_msid
+        recordings = f"{recordings},{non_existing_rec_msid}"
 
         # recording_msids for which feedback records are inserted
         recording_mbids = inserted_rows[2]["recording_mbid"] + "," + inserted_rows[3]["recording_mbid"]
 
         # recording_mbid for which feedback record doesn't exist
         non_existing_rec_mbid = "6a221fda-2200-11ec-ac7d-dfa16a57158f"
-        recording_mbids = recording_mbids + "," + non_existing_rec_mbid
+        recording_mbids = f"{recording_mbids},{non_existing_rec_mbid}"
 
         response = self.client.get(url_for("feedback_api_v1.get_feedback_for_recordings_for_user",
                                            user_name=self.user["musicbrainz_id"]),
@@ -1142,15 +1142,10 @@ class FeedbackAPITestCase(IntegrationTestCase):
         """ Test to make sure that the API sends 400 if params recordings has invalid recording_msid. """
         inserted_rows = self.insert_test_data(self.user["id"])
 
-        recordings = ""
-        # recording_msids for which feedback records are inserted
-        for row in inserted_rows:
-            recordings += row["recording_msid"] + ","
-
-        # invalid recording_msid
-        invalid_rec_msid = "invalid_recording_msid"
-
-        recordings += invalid_rec_msid
+        recordings = (
+            "".join(row["recording_msid"] + "," for row in inserted_rows)
+            + "invalid_recording_msid"
+        )
         response = self.client.get(url_for("feedback_api_v1.get_feedback_for_recordings_for_user",
                                            user_name=self.user["musicbrainz_id"]),
                                    query_string={"recording_msids": recordings})  # recording_msids has invalid recording_msid

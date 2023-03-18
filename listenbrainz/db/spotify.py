@@ -28,7 +28,7 @@ def get_active_users_to_process() -> List[dict]:
                 AND error_message IS NULL
           ORDER BY latest_listened_at DESC NULLS LAST
         """))
-        return [row for row in result.mappings()]
+        return list(result.mappings())
 
 
 def get_user_import_details(user_id: int) -> Optional[dict]:

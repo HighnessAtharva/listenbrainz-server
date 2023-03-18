@@ -148,10 +148,7 @@ class MappingTestCase(TimescaleTestCase):
         })
         for idx in range(5):
             recordings[idx]["recording_msid"] = submitted[idx]
-            if idx == 2 or idx == 4:
-                match_type = "no_match"
-            else:
-                match_type = "exact_match"
+            match_type = "no_match" if idx in [2, 4] else "exact_match"
             self.insert_recording_in_mapping(recordings[idx], match_type)
         return recordings
 

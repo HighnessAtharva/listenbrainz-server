@@ -92,12 +92,10 @@ class Playlist(BaseModel):
         """
         if self.public:
             return True
-        if user_id:
-            if user_id == self.creator_id:
-                return True
-            elif user_id in self.collaborator_ids:
-                return True
-        return False
+        return bool(
+            user_id
+            and (user_id == self.creator_id or user_id in self.collaborator_ids)
+        )
 
     def is_modifiable_by(self, user_id: int):
         """Check if user can modify a playlist
@@ -108,9 +106,7 @@ class Playlist(BaseModel):
         Args:
             user_id : row id of the user.
         """
-        if user_id == self.creator_id or user_id in self.collaborator_ids:
-            return True
-        return False
+        return user_id == self.creator_id or user_id in self.collaborator_ids
 
 
 class WritablePlaylist(Playlist):

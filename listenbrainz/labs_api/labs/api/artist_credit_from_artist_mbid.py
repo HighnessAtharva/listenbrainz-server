@@ -29,7 +29,7 @@ class ArtistCreditIdFromArtistMBIDQuery(Query):
         with psycopg2.connect(current_app.config["MB_DATABASE_URI"]) as conn:
             with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as curs:
 
-                acs = tuple([p['artist_mbid'] for p in params])
+                acs = tuple(p['artist_mbid'] for p in params)
                 query = """SELECT a.gid AS artist_mbid,
                                        array_agg(ac.id) AS artist_credit_id
                                   FROM artist_credit ac
@@ -51,10 +51,10 @@ class ArtistCreditIdFromArtistMBIDQuery(Query):
                 curs.execute(query, tuple(args))
                 output = []
                 while True:
-                    row = curs.fetchone()
-                    if not row:
-                        break
+                    if row := curs.fetchone():
+                        output.append(dict(row))
 
-                    output.append(dict(row))
+                    else:
+                        break
 
                 return output

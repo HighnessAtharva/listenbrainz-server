@@ -53,8 +53,7 @@ def get_mbid_manual_mapping(recording_msid: uuid.UUID, user_id: int) -> Optional
                 "user_id": user_id
             }
         )
-        row = result.fetchone()
-        if row:
+        if row := result.fetchone():
             return MbidManualMapping(
                 recording_msid=row.recording_msid,
                 recording_mbid=row.recording_mbid,
@@ -107,6 +106,6 @@ def check_manual_mapping_exists(user_id: int, recording_msids: Iterable[str]) ->
             ON mmm.recording_msid = t.msid::uuid
          WHERE user_id = {user_id}
         """).format(user_id=Literal(user_id))
-    with ts.engine.begin() as conn, conn.connection.cursor() as cursor:
+    with (ts.engine.begin() as conn, conn.connection.cursor() as cursor):
         result = execute_values(cursor, query, [(msid,) for msid in recording_msids], fetch=True)
-        return set(row[0] for row in result)
+        return {row[0] for row in result}

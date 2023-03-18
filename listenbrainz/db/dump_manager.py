@@ -51,16 +51,17 @@ cli = click.Group()
 
 def send_dump_creation_notification(dump_name, dump_type):
     if not current_app.config['TESTING']:
-        dump_link = 'http://ftp.musicbrainz.org/pub/musicbrainz/listenbrainz/{}/{}'.format(
-            dump_type, dump_name)
+        dump_link = f'http://ftp.musicbrainz.org/pub/musicbrainz/listenbrainz/{dump_type}/{dump_name}'
         send_mail(
-            subject="ListenBrainz {} dump created - {}".format(
-                dump_type, dump_name),
-            text=render_template('emails/data_dump_created_notification.txt',
-                                 dump_name=dump_name, dump_link=dump_link),
+            subject=f"ListenBrainz {dump_type} dump created - {dump_name}",
+            text=render_template(
+                'emails/data_dump_created_notification.txt',
+                dump_name=dump_name,
+                dump_link=dump_link,
+            ),
             recipients=['listenbrainz-observability@metabrainz.org'],
             from_name='ListenBrainz',
-            from_addr='noreply@'+current_app.config['MAIL_FROM_DOMAIN']
+            from_addr='noreply@' + current_app.config['MAIL_FROM_DOMAIN'],
         )
 
 
@@ -110,8 +111,7 @@ def create_mbcanonical(location, use_lb_conn):
             # Mapping dump doesn't have a dump id (second field) as they are standalone
             f.write("%s 0 mbcanonical\n" % (ts, ))
 
-        current_app.logger.info(
-            'Dumps created and hashes written at %s' % dump_path)
+        current_app.logger.info(f'Dumps created and hashes written at {dump_path}')
 
 
 @cli.command(name="create_full")
@@ -192,8 +192,7 @@ def create_full(location, threads, dump_id, do_listen_dump: bool, do_spark_dump:
         except OSError:
             sys.exit(-1)
 
-        current_app.logger.info(
-            'Dumps created and hashes written at %s' % dump_path)
+        current_app.logger.info(f'Dumps created and hashes written at {dump_path}')
 
         # Write the DUMP_ID file so that the FTP sync scripts can be more robust
         with open(os.path.join(dump_path, "DUMP_ID.txt"), "w") as f:
@@ -257,8 +256,7 @@ def create_incremental(location, threads, dump_id):
             f.write("%s %s incremental\n" %
                     (end_time.strftime('%Y%m%d-%H%M%S'), dump_id))
 
-        current_app.logger.info(
-            'Dumps created and hashes written at %s' % dump_path)
+        current_app.logger.info(f'Dumps created and hashes written at {dump_path}')
         sys.exit(0)
 
 
@@ -297,7 +295,8 @@ def create_feedback(location, threads):
             f.write("%s 0 feedback\n" % (end_time.strftime('%Y%m%d-%H%M%S')))
 
         current_app.logger.info(
-            'Feedback dump created and hashes written at %s' % dump_path)
+            f'Feedback dump created and hashes written at {dump_path}'
+        )
 
         sys.exit(0)
 
@@ -390,63 +389,65 @@ def _cleanup_dumps(location):
     # Clean up full dumps
     full_dump_re = re.compile('listenbrainz-dump-[0-9]*-[0-9]*-[0-9]*-full')
     dump_files = [x for x in os.listdir(location) if full_dump_re.match(x)]
-    full_dumps = [x for x in sorted(dump_files, key=get_dump_id, reverse=True)]
-    if not full_dumps:
-        print('No full dumps present in specified directory!')
-    else:
+    if full_dumps := list(sorted(dump_files, key=get_dump_id, reverse=True)):
         remove_dumps(location, full_dumps, NUMBER_OF_FULL_DUMPS_TO_KEEP)
 
+    else:
+        print('No full dumps present in specified directory!')
     # Clean up incremental dumps
     incremental_dump_re = re.compile(
         'listenbrainz-dump-[0-9]*-[0-9]*-[0-9]*-incremental')
     dump_files = [x for x in os.listdir(
         location) if incremental_dump_re.match(x)]
-    incremental_dumps = [x for x in sorted(
-        dump_files, key=get_dump_id, reverse=True)]
-    if not incremental_dumps:
-        print('No incremental dumps present in specified directory!')
-    else:
+    if incremental_dumps := list(
+        sorted(dump_files, key=get_dump_id, reverse=True)
+    ):
         remove_dumps(location, incremental_dumps,
                      NUMBER_OF_INCREMENTAL_DUMPS_TO_KEEP)
 
+    else:
+        print('No incremental dumps present in specified directory!')
     # Clean up spark / feedback dumps
     spark_dump_re = re.compile(
         'listenbrainz-feedback-[0-9]*-[0-9]*-full')
     dump_files = [x for x in os.listdir(
         location) if spark_dump_re.match(x)]
-    spark_dumps = [x for x in sorted(
-        dump_files, key=get_dump_ts, reverse=True)]
-    if not spark_dumps:
-        print('No spark feedback dumps present in specified directory!')
-    else:
+    if spark_dumps := list(sorted(dump_files, key=get_dump_ts, reverse=True)):
         remove_dumps(location, spark_dumps,
                      NUMBER_OF_FEEDBACK_DUMPS_TO_KEEP)
 
+    else:
+        print('No spark feedback dumps present in specified directory!')
     # Clean up canonical dumps
     mbcanonical_dump_re = re.compile(
         'musicbrainz-canonical-dump-[0-9]*-[0-9]*')
     dump_files = [x for x in os.listdir(
         location) if mbcanonical_dump_re.match(x)]
-    mbcanonical_dumps = [x for x in sorted(
-        dump_files, key=lambda dump_name: dump_name.split('-')[3] + dump_name.split('-')[4], reverse=True)]
-    if not mbcanonical_dumps:
-        print('No canonical dumps present in specified directory!')
-    else:
+    if mbcanonical_dumps := list(
+        sorted(
+            dump_files,
+            key=lambda dump_name: dump_name.split('-')[3]
+            + dump_name.split('-')[4],
+            reverse=True,
+        )
+    ):
         remove_dumps(location, mbcanonical_dumps,
                      NUMBER_OF_CANONICAL_DUMPS_TO_KEEP)
+    else:
+        print('No canonical dumps present in specified directory!')
 
 
 def remove_dumps(location, dumps, remaining_count):
-    keep = dumps[0:remaining_count]
+    keep = dumps[:remaining_count]
     keep_count = 0
     for dump in keep:
-        print('Keeping %s...' % dump)
+        print(f'Keeping {dump}...')
         keep_count += 1
 
     remove = dumps[remaining_count:]
     remove_count = 0
     for dump in remove:
-        print('Removing %s...' % dump)
+        print(f'Removing {dump}...')
         shutil.rmtree(os.path.join(location, dump))
         remove_count += 1
 
@@ -463,11 +464,11 @@ def write_hashes(location):
     """
     for file in os.listdir(location):
         try:
-            with open(os.path.join(location, '{}.md5'.format(file)), 'w') as f:
+            with open(os.path.join(location, f'{file}.md5'), 'w') as f:
                 md5sum = subprocess.check_output(
                     ['md5sum', os.path.join(location, file)]).decode('utf-8').split()[0]
                 f.write(md5sum)
-            with open(os.path.join(location, '{}.sha256'.format(file)), 'w') as f:
+            with open(os.path.join(location, f'{file}.sha256'), 'w') as f:
                 sha256sum = subprocess.check_output(
                     ['sha256sum', os.path.join(location, file)]).decode('utf-8').split()[0]
                 f.write(sha256sum)
@@ -493,7 +494,7 @@ def sanity_check_dumps(location, expected_count):
         try:
             dump_file = os.path.join(location, file)
             if os.path.getsize(dump_file) == 0:
-                print("Dump file %s is empty!" % dump_file)
+                print(f"Dump file {dump_file} is empty!")
                 return False
             count += 1
         except OSError as e:

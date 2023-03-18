@@ -186,7 +186,7 @@ class SpotifyIdsQueue(threading.Thread):
             if cache.get(cache_key) is None:
                 filtered_ids.append(spotify_id)
 
-        if len(filtered_ids) == 0:
+        if not filtered_ids:
             return
 
         # TODO: check in PG too if missing from cache before querying spotify?
@@ -214,7 +214,7 @@ class SpotifyIdsQueue(threading.Thread):
                         item = self.queue.get()
                         spotify_ids.append(item.spotify_id)
                 except Empty:
-                    if len(spotify_ids) == 0:
+                    if not spotify_ids:
                         sleep(5)
                         continue
 

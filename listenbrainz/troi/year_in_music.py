@@ -52,7 +52,9 @@ def generate_playlists_for_batch(batch, patches):
                 if playlist_element is not None:
                     playlist = playlist_element.playlists[0]
                     data = _serialize_to_jspf(playlist)
-                    data["playlist"]["identifier"] = "https://listenbrainz.org/playlist/" + playlist.mbid + "/"
+                    data["playlist"][
+                        "identifier"
+                    ] = f"https://listenbrainz.org/playlist/{playlist.mbid}/"
                     yim_playlists.append((user["id"], f"playlist-{patch.slug()}", data["playlist"]))
             except Exception:
                 current_app.logger.error("Error while generate YIM playlist:", exc_info=True)

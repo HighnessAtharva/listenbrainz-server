@@ -89,7 +89,7 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -102,8 +102,12 @@ class PlaylistAPITestCase(IntegrationTestCase):
 
         # Test to ensure fetching a playlist works
         response = self.client.get(
-            url_for("playlist_api_v1.get_playlist", playlist_mbid=playlist_mbid, fetch_metadata="false"),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            url_for(
+                "playlist_api_v1.get_playlist",
+                playlist_mbid=playlist_mbid,
+                fetch_metadata="false",
+            ),
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         self.assertEqual(response.json["playlist"]["creator"], "testuserpleaseignore")
@@ -127,14 +131,18 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user3["auth_token"])}
+            headers={"Authorization": f'Token {self.user3["auth_token"]}'},
         )
         self.assert200(response)
         playlist_mbid = response.json["playlist_mbid"]
 
         response = self.client.get(
-            url_for("playlist_api_v1.get_playlist", playlist_mbid=playlist_mbid, fetch_metadata="false"),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            url_for(
+                "playlist_api_v1.get_playlist",
+                playlist_mbid=playlist_mbid,
+                fetch_metadata="false",
+            ),
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         self.assertEqual(response.json["playlist"]["extension"]
@@ -149,7 +157,7 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert403(response)
 
@@ -157,8 +165,12 @@ class PlaylistAPITestCase(IntegrationTestCase):
         """ Test to ensure fetching a non existent playlist gives 404 """
 
         response = self.client.get(
-            url_for("playlist_api_v1.get_playlist", playlist_mbid="0ebcde36-1b14-4be5-ad3e-a088caf69134", fetch_metadata="false"),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            url_for(
+                "playlist_api_v1.get_playlist",
+                playlist_mbid="0ebcde36-1b14-4be5-ad3e-a088caf69134",
+                fetch_metadata="false",
+            ),
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert404(response)
 
@@ -171,7 +183,7 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -181,8 +193,12 @@ class PlaylistAPITestCase(IntegrationTestCase):
 
         # Test to ensure fetching a private playlist from a non-owner fails with 404
         response = self.client.get(
-            url_for("playlist_api_v1.get_playlist", playlist_mbid=playlist_mbid, fetch_metadata="false"),
-            headers={"Authorization": "Token {}".format(self.user2["auth_token"])}
+            url_for(
+                "playlist_api_v1.get_playlist",
+                playlist_mbid=playlist_mbid,
+                fetch_metadata="false",
+            ),
+            headers={"Authorization": f'Token {self.user2["auth_token"]}'},
         )
         self.assert404(response)
 
@@ -203,7 +219,7 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -234,7 +250,7 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert400(response)
         self.assertEqual(response.json["error"], "JSPF playlist must contain a title element with the title of the playlist.")
@@ -254,7 +270,7 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert400(response)
         self.assertEqual(
@@ -280,7 +296,7 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert400(response)
         self.assertEqual(response.json["error"], "JSPF playlist public field must contain a boolean.")
@@ -306,7 +322,7 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert400(response)
         self.assertEqual(response.json["error"],
@@ -332,7 +348,7 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert400(response)
         self.assertEqual(response.json["error"],
@@ -351,7 +367,7 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -368,8 +384,11 @@ class PlaylistAPITestCase(IntegrationTestCase):
 
         # Check that this playlist shows up on the collaborators endpoint
         response = self.client.get(
-            url_for("api_v1.get_playlists_collaborated_on_for_user", playlist_user_name=self.user2["musicbrainz_id"]),
-            headers={"Authorization": "Token {}".format(self.user4["auth_token"])},
+            url_for(
+                "api_v1.get_playlists_collaborated_on_for_user",
+                playlist_user_name=self.user2["musicbrainz_id"],
+            ),
+            headers={"Authorization": f'Token {self.user4["auth_token"]}'},
         )
         self.assert200(response)
         self.assertEqual(response.json["playlist_count"], 1)
@@ -386,7 +405,7 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -398,20 +417,33 @@ class PlaylistAPITestCase(IntegrationTestCase):
         # Owner is in collaborators, should be filtered out
         response = self.client.post(
             url_for("playlist_api_v1.edit_playlist", playlist_mbid=playlist_mbid),
-            json={"playlist": {"title": "new title",
-                               "annotation": "new <b>desc</b> <script>noscript</script>",
-                               "extension": {PLAYLIST_EXTENSION_URI: {"public": False,
-                                                                      "collaborators": [self.user["musicbrainz_id"],
-                                                                                        self.user2["musicbrainz_id"],
-                                                                                        self.user3["musicbrainz_id"]]}
-                                             }}},
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            json={
+                "playlist": {
+                    "title": "new title",
+                    "annotation": "new <b>desc</b> <script>noscript</script>",
+                    "extension": {
+                        PLAYLIST_EXTENSION_URI: {
+                            "public": False,
+                            "collaborators": [
+                                self.user["musicbrainz_id"],
+                                self.user2["musicbrainz_id"],
+                                self.user3["musicbrainz_id"],
+                            ],
+                        }
+                    },
+                }
+            },
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
 
         response = self.client.get(
-            url_for("playlist_api_v1.get_playlist", playlist_mbid=playlist_mbid, fetch_metadata="false"),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            url_for(
+                "playlist_api_v1.get_playlist",
+                playlist_mbid=playlist_mbid,
+                fetch_metadata="false",
+            ),
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
 
         self.assertEqual(response.json["playlist"]["title"], "new title")
@@ -425,15 +457,22 @@ class PlaylistAPITestCase(IntegrationTestCase):
         # Edit again to remove description and collaborators
         response = self.client.post(
             url_for("playlist_api_v1.edit_playlist", playlist_mbid=playlist_mbid),
-            json={"playlist": {"annotation": "",
-                               "extension": {PLAYLIST_EXTENSION_URI: {
-                                   "collaborators": []}}}},
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            json={
+                "playlist": {
+                    "annotation": "",
+                    "extension": {PLAYLIST_EXTENSION_URI: {"collaborators": []}},
+                }
+            },
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         response = self.client.get(
-            url_for("playlist_api_v1.get_playlist", playlist_mbid=playlist_mbid, fetch_metadata="false"),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            url_for(
+                "playlist_api_v1.get_playlist",
+                playlist_mbid=playlist_mbid,
+                fetch_metadata="false",
+            ),
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
 
         self.assertEqual(response.json["playlist"]["title"], "new title")
@@ -450,7 +489,7 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         playlist_mbid = response.json["playlist_mbid"]
@@ -460,26 +499,28 @@ class PlaylistAPITestCase(IntegrationTestCase):
             "playlist": {
                 "track": [
                     {
-                        "identifier": PLAYLIST_TRACK_URI_PREFIX + "4a77a078-e91a-4522-a409-3b58aa7de3ae"
+                        "identifier": f"{PLAYLIST_TRACK_URI_PREFIX}4a77a078-e91a-4522-a409-3b58aa7de3ae"
                     }
                 ],
-                "extension": {
-                    PLAYLIST_EXTENSION_URI: {
-                        "public": True
-                    }
-                },
+                "extension": {PLAYLIST_EXTENSION_URI: {"public": True}},
             }
         }
         response = self.client.post(
-            url_for("playlist_api_v1.add_playlist_item", playlist_mbid=playlist_mbid),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            json=add_recording
+            url_for(
+                "playlist_api_v1.add_playlist_item", playlist_mbid=playlist_mbid
+            ),
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            json=add_recording,
         )
         self.assert200(response)
 
         response = self.client.get(
-            url_for("playlist_api_v1.get_playlist", playlist_mbid=playlist_mbid, fetch_metadata="false"),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            url_for(
+                "playlist_api_v1.get_playlist",
+                playlist_mbid=playlist_mbid,
+                fetch_metadata="false",
+            ),
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assertEqual(response.json["playlist"]["creator"], "testuserpleaseignore")
         self.assertEqual(response.json["playlist"]["identifier"], PLAYLIST_URI_PREFIX + playlist_mbid)
@@ -499,9 +540,11 @@ class PlaylistAPITestCase(IntegrationTestCase):
             }
         }
         response = self.client.post(
-            url_for("playlist_api_v1.add_playlist_item", playlist_mbid=playlist_mbid),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            json=add_recording
+            url_for(
+                "playlist_api_v1.add_playlist_item", playlist_mbid=playlist_mbid
+            ),
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            json=add_recording,
         )
         self.assert400(response)
 
@@ -512,39 +555,41 @@ class PlaylistAPITestCase(IntegrationTestCase):
                 "title": "1980s flashback jams",
                 "track": [
                     {
-                        "identifier": PLAYLIST_TRACK_URI_PREFIX + "e8f9b188-f819-4e43-ab0f-4bd26ce9ff56"
+                        "identifier": f"{PLAYLIST_TRACK_URI_PREFIX}e8f9b188-f819-4e43-ab0f-4bd26ce9ff56"
                     },
                     {
-                        "identifier": PLAYLIST_TRACK_URI_PREFIX + "57ef4803-5181-4b3d-8dd6-8b9d9ca83e2a"
-                    }
+                        "identifier": f"{PLAYLIST_TRACK_URI_PREFIX}57ef4803-5181-4b3d-8dd6-8b9d9ca83e2a"
+                    },
                 ],
-                "extension": {
-                    PLAYLIST_EXTENSION_URI: {
-                        "public": True
-                    }
-                },
+                "extension": {PLAYLIST_EXTENSION_URI: {"public": True}},
             }
         }
 
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         playlist_mbid = response.json["playlist_mbid"]
 
         move = {"mbid": "57ef4803-5181-4b3d-8dd6-8b9d9ca83e2a", "from": 1, "to": 0, "count": 1}
         response = self.client.post(
-            url_for("playlist_api_v1.move_playlist_item", playlist_mbid=playlist_mbid),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            json=move
+            url_for(
+                "playlist_api_v1.move_playlist_item", playlist_mbid=playlist_mbid
+            ),
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            json=move,
         )
         self.assert200(response)
 
         response = self.client.get(
-            url_for("playlist_api_v1.get_playlist", playlist_mbid=playlist_mbid, fetch_metadata="false"),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            url_for(
+                "playlist_api_v1.get_playlist",
+                playlist_mbid=playlist_mbid,
+                fetch_metadata="false",
+            ),
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assertEqual(response.json["playlist"]["creator"], "testuserpleaseignore")
         self.assertEqual(response.json["playlist"]["identifier"], PLAYLIST_URI_PREFIX + playlist_mbid)
@@ -559,39 +604,41 @@ class PlaylistAPITestCase(IntegrationTestCase):
                 "title": "1980s flashback jams",
                 "track": [
                     {
-                        "identifier": PLAYLIST_TRACK_URI_PREFIX + "e8f9b188-f819-4e43-ab0f-4bd26ce9ff56"
+                        "identifier": f"{PLAYLIST_TRACK_URI_PREFIX}e8f9b188-f819-4e43-ab0f-4bd26ce9ff56"
                     },
                     {
-                        "identifier": PLAYLIST_TRACK_URI_PREFIX + "57ef4803-5181-4b3d-8dd6-8b9d9ca83e2a"
-                    }
+                        "identifier": f"{PLAYLIST_TRACK_URI_PREFIX}57ef4803-5181-4b3d-8dd6-8b9d9ca83e2a"
+                    },
                 ],
-                "extension": {
-                    PLAYLIST_EXTENSION_URI: {
-                        "public": True
-                    }
-                },
+                "extension": {PLAYLIST_EXTENSION_URI: {"public": True}},
             }
         }
 
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         playlist_mbid = response.json["playlist_mbid"]
 
         move = {"index": 0, "count": 1}
         response = self.client.post(
-            url_for("playlist_api_v1.delete_playlist_item", playlist_mbid=playlist_mbid),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            json=move
+            url_for(
+                "playlist_api_v1.delete_playlist_item", playlist_mbid=playlist_mbid
+            ),
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            json=move,
         )
         self.assert200(response)
 
         response = self.client.get(
-            url_for("playlist_api_v1.get_playlist", playlist_mbid=playlist_mbid, fetch_metadata="false"),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            url_for(
+                "playlist_api_v1.get_playlist",
+                playlist_mbid=playlist_mbid,
+                fetch_metadata="false",
+            ),
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assertEqual(response.json["playlist"]["creator"], "testuserpleaseignore")
         self.assertEqual(response.json["playlist"]["identifier"], PLAYLIST_URI_PREFIX + playlist_mbid)
@@ -614,21 +661,27 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         playlist_mbid = response.json["playlist_mbid"]
 
         response = self.client.post(
-            url_for("playlist_api_v1.delete_playlist", playlist_mbid=playlist_mbid),
+            url_for(
+                "playlist_api_v1.delete_playlist", playlist_mbid=playlist_mbid
+            ),
             json={},
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
 
         response = self.client.get(
-            url_for("playlist_api_v1.get_playlist", playlist_mbid=playlist_mbid, fetch_metadata="false"),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            url_for(
+                "playlist_api_v1.get_playlist",
+                playlist_mbid=playlist_mbid,
+                fetch_metadata="false",
+            ),
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert404(response)
 
@@ -650,7 +703,7 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         playlist_mbid = response.json["playlist_mbid"]
@@ -658,15 +711,19 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.copy_playlist", playlist_mbid=playlist_mbid),
             json={},
-            headers={"Authorization": "Token {}".format(self.user2["auth_token"])}
+            headers={"Authorization": f'Token {self.user2["auth_token"]}'},
         )
         self.assert200(response)
         new_playlist_mbid = response.json["playlist_mbid"]
         self.assertNotEqual(playlist_mbid, new_playlist_mbid)
 
         response = self.client.get(
-            url_for("playlist_api_v1.get_playlist", playlist_mbid=new_playlist_mbid, fetch_metadata="false"),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            url_for(
+                "playlist_api_v1.get_playlist",
+                playlist_mbid=new_playlist_mbid,
+                fetch_metadata="false",
+            ),
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         self.assertEqual(response.json["playlist"]["identifier"], PLAYLIST_URI_PREFIX + new_playlist_mbid)
@@ -683,15 +740,21 @@ class PlaylistAPITestCase(IntegrationTestCase):
 
         # Now delete the original playlist so that we can test copied from deleted playlist
         response = self.client.post(
-            url_for("playlist_api_v1.delete_playlist", playlist_mbid=playlist_mbid),
+            url_for(
+                "playlist_api_v1.delete_playlist", playlist_mbid=playlist_mbid
+            ),
             json={},
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
 
         response = self.client.get(
-            url_for("playlist_api_v1.get_playlist", playlist_mbid=new_playlist_mbid, fetch_metadata="false"),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            url_for(
+                "playlist_api_v1.get_playlist",
+                playlist_mbid=new_playlist_mbid,
+                fetch_metadata="false",
+            ),
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         self.assertEqual(response.json["playlist"]["extension"][PLAYLIST_EXTENSION_URI]["copied_from_deleted"], True)
@@ -712,7 +775,7 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         playlist_mbid = response.json["playlist_mbid"]
@@ -720,15 +783,19 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.copy_playlist", playlist_mbid=playlist_mbid),
             json={},
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         new_playlist_mbid = response.json["playlist_mbid"]
         self.assertNotEqual(playlist_mbid, new_playlist_mbid)
 
         response = self.client.get(
-            url_for("playlist_api_v1.get_playlist", playlist_mbid=new_playlist_mbid, fetch_metadata="false"),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            url_for(
+                "playlist_api_v1.get_playlist",
+                playlist_mbid=new_playlist_mbid,
+                fetch_metadata="false",
+            ),
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         self.assertEqual(response.json["playlist"]["extension"][PLAYLIST_EXTENSION_URI]["public"], False)
@@ -744,46 +811,60 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         playlist_mbid = response.json["playlist_mbid"]
 
         response = self.client.get(
-            url_for("playlist_api_v1.get_playlist", playlist_mbid=playlist_mbid, fetch_metadata="false"),
-            headers={"Authorization": "Token {}".format(self.user2["auth_token"])},
+            url_for(
+                "playlist_api_v1.get_playlist",
+                playlist_mbid=playlist_mbid,
+                fetch_metadata="false",
+            ),
+            headers={"Authorization": f'Token {self.user2["auth_token"]}'},
         )
         self.assert404(response)
 
         # Add recording to playlist
         response = self.client.post(
-            url_for("playlist_api_v1.add_playlist_item", offset=0, playlist_mbid=playlist_mbid),
+            url_for(
+                "playlist_api_v1.add_playlist_item",
+                offset=0,
+                playlist_mbid=playlist_mbid,
+            ),
             json={},
-            headers={"Authorization": "Token {}".format(self.user2["auth_token"])}
+            headers={"Authorization": f'Token {self.user2["auth_token"]}'},
         )
         self.assert404(response)
 
         # Move recording in playlist
         response = self.client.post(
-            url_for("playlist_api_v1.move_playlist_item", playlist_mbid=playlist_mbid),
+            url_for(
+                "playlist_api_v1.move_playlist_item", playlist_mbid=playlist_mbid
+            ),
             json={},
-            headers={"Authorization": "Token {}".format(self.user2["auth_token"])}
+            headers={"Authorization": f'Token {self.user2["auth_token"]}'},
         )
         self.assert404(response)
 
         # Delete recording in playlist
         response = self.client.post(
-            url_for("playlist_api_v1.delete_playlist_item", playlist_mbid=playlist_mbid),
+            url_for(
+                "playlist_api_v1.delete_playlist_item", playlist_mbid=playlist_mbid
+            ),
             json={},
-            headers={"Authorization": "Token {}".format(self.user2["auth_token"])}
+            headers={"Authorization": f'Token {self.user2["auth_token"]}'},
         )
         self.assert404(response)
 
         # Delete a playlist
         response = self.client.post(
-            url_for("playlist_api_v1.delete_playlist", playlist_mbid=playlist_mbid),
+            url_for(
+                "playlist_api_v1.delete_playlist", playlist_mbid=playlist_mbid
+            ),
             json={},
-            headers={"Authorization": "Token {}".format(self.user2["auth_token"])}
+            headers={"Authorization": f'Token {self.user2["auth_token"]}'},
         )
         self.assert404(response)
 
@@ -791,7 +872,7 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.copy_playlist", playlist_mbid=playlist_mbid),
             json={},
-            headers={"Authorization": "Token {}".format(self.user2["auth_token"])}
+            headers={"Authorization": f'Token {self.user2["auth_token"]}'},
         )
         self.assert404(response)
 
@@ -806,15 +887,19 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         playlist_mbid = response.json["playlist_mbid"]
 
         # Get playlist
         response = self.client.get(
-            url_for("playlist_api_v1.get_playlist", playlist_mbid=playlist_mbid, fetch_metadata="false"),
-            headers={"Authorization": "Token {}".format(self.user2["auth_token"])},
+            url_for(
+                "playlist_api_v1.get_playlist",
+                playlist_mbid=playlist_mbid,
+                fetch_metadata="false",
+            ),
+            headers={"Authorization": f'Token {self.user2["auth_token"]}'},
         )
         self.assert200(response)
 
@@ -823,38 +908,40 @@ class PlaylistAPITestCase(IntegrationTestCase):
             "playlist": {
                 "track": [
                     {
-                        "identifier": PLAYLIST_TRACK_URI_PREFIX + "4a77a078-e91a-4522-a409-3b58aa7de3ae"
+                        "identifier": f"{PLAYLIST_TRACK_URI_PREFIX}4a77a078-e91a-4522-a409-3b58aa7de3ae"
                     }
                 ],
-                "extension": {
-                    PLAYLIST_EXTENSION_URI: {
-                        "public": True
-                    }
-                },
+                "extension": {PLAYLIST_EXTENSION_URI: {"public": True}},
             }
         }
         response = self.client.post(
-            url_for("playlist_api_v1.add_playlist_item", playlist_mbid=playlist_mbid),
-            headers={"Authorization": "Token {}".format(self.user2["auth_token"])},
-            json=add_recording
+            url_for(
+                "playlist_api_v1.add_playlist_item", playlist_mbid=playlist_mbid
+            ),
+            headers={"Authorization": f'Token {self.user2["auth_token"]}'},
+            json=add_recording,
         )
         self.assert200(response)
 
         # Move recording in playlist
         move = {"mbid": "57ef4803-5181-4b3d-8dd6-8b9d9ca83e2a", "from": 1, "to": 0, "count": 1}
         response = self.client.post(
-            url_for("playlist_api_v1.move_playlist_item", playlist_mbid=playlist_mbid),
-            headers={"Authorization": "Token {}".format(self.user2["auth_token"])},
-            json=move
+            url_for(
+                "playlist_api_v1.move_playlist_item", playlist_mbid=playlist_mbid
+            ),
+            headers={"Authorization": f'Token {self.user2["auth_token"]}'},
+            json=move,
         )
         self.assert200(response)
 
         # Delete recording in playlist
         delete = {"index": 0, "count": 1}
         response = self.client.post(
-            url_for("playlist_api_v1.delete_playlist_item", playlist_mbid=playlist_mbid),
+            url_for(
+                "playlist_api_v1.delete_playlist_item", playlist_mbid=playlist_mbid
+            ),
             json=delete,
-            headers={"Authorization": "Token {}".format(self.user2["auth_token"])}
+            headers={"Authorization": f'Token {self.user2["auth_token"]}'},
         )
         self.assert200(response)
 
@@ -862,7 +949,7 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.copy_playlist", playlist_mbid=playlist_mbid),
             json={},
-            headers={"Authorization": "Token {}".format(self.user2["auth_token"])}
+            headers={"Authorization": f'Token {self.user2["auth_token"]}'},
         )
         self.assert200(response)
         new_playlist_mbid = response.json["playlist_mbid"]
@@ -871,9 +958,11 @@ class PlaylistAPITestCase(IntegrationTestCase):
         # Collaborators are not authorized to edit or delete the playlist
         # Delete a playlist
         response = self.client.post(
-            url_for("playlist_api_v1.delete_playlist", playlist_mbid=playlist_mbid),
+            url_for(
+                "playlist_api_v1.delete_playlist", playlist_mbid=playlist_mbid
+            ),
             json={},
-            headers={"Authorization": "Token {}".format(self.user2["auth_token"])}
+            headers={"Authorization": f'Token {self.user2["auth_token"]}'},
         )
         self.assert403(response)
 
@@ -881,7 +970,7 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.edit_playlist", playlist_mbid=playlist_mbid),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user2["auth_token"])}
+            headers={"Authorization": f'Token {self.user2["auth_token"]}'},
         )
         self.assert403(response)
 
@@ -894,7 +983,7 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user4["auth_token"])}
+            headers={"Authorization": f'Token {self.user4["auth_token"]}'},
         )
         self.assert200(response)
         private_playlist_mbid = response.json["playlist_mbid"]
@@ -903,21 +992,27 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user4["auth_token"])}
+            headers={"Authorization": f'Token {self.user4["auth_token"]}'},
         )
         self.assert200(response)
         public_playlist_mbid = response.json["playlist_mbid"]
 
         response = self.client.get(
-            url_for("api_v1.get_playlists_for_user", playlist_user_name=self.user4["musicbrainz_id"]),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
+            url_for(
+                "api_v1.get_playlists_for_user",
+                playlist_user_name=self.user4["musicbrainz_id"],
+            ),
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         self.assertEqual(response.json["playlist_count"], 1)
 
         response = self.client.get(
-            url_for("api_v1.get_playlists_for_user", playlist_user_name=self.user4["musicbrainz_id"]),
-            headers={"Authorization": "Token {}".format(self.user4["auth_token"])},
+            url_for(
+                "api_v1.get_playlists_for_user",
+                playlist_user_name=self.user4["musicbrainz_id"],
+            ),
+            headers={"Authorization": f'Token {self.user4["auth_token"]}'},
         )
         self.assert200(response)
         self.assertEqual(response.json["playlist_count"], 2)
@@ -948,8 +1043,12 @@ class PlaylistAPITestCase(IntegrationTestCase):
 
         # Test count and offset parameters
         response = self.client.get(
-            url_for("api_v1.get_playlists_for_user", playlist_user_name=self.user4["musicbrainz_id"], count=1),
-            headers={"Authorization": "Token {}".format(self.user4["auth_token"])},
+            url_for(
+                "api_v1.get_playlists_for_user",
+                playlist_user_name=self.user4["musicbrainz_id"],
+                count=1,
+            ),
+            headers={"Authorization": f'Token {self.user4["auth_token"]}'},
         )
         self.assert200(response)
         self.assertEqual(len(response.json["playlists"]), 1)
@@ -958,8 +1057,13 @@ class PlaylistAPITestCase(IntegrationTestCase):
         self.assertEqual(response.json["offset"], 0)
 
         response = self.client.get(
-            url_for("api_v1.get_playlists_for_user", playlist_user_name=self.user4["musicbrainz_id"], offset=1, count=1),
-            headers={"Authorization": "Token {}".format(self.user4["auth_token"])},
+            url_for(
+                "api_v1.get_playlists_for_user",
+                playlist_user_name=self.user4["musicbrainz_id"],
+                offset=1,
+                count=1,
+            ),
+            headers={"Authorization": f'Token {self.user4["auth_token"]}'},
         )
         self.assert200(response)
         self.assertEqual(len(response.json["playlists"]), 1)
@@ -1042,40 +1146,50 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         playlist_mbid = response.json["playlist_mbid"]
 
         # Add recording to playlist
         response = self.client.post(
-            url_for("playlist_api_v1.add_playlist_item", offset=0, playlist_mbid=playlist_mbid),
+            url_for(
+                "playlist_api_v1.add_playlist_item",
+                offset=0,
+                playlist_mbid=playlist_mbid,
+            ),
             json={},
-            headers={"Authorization": "Token {}".format(self.user2["auth_token"])}
+            headers={"Authorization": f'Token {self.user2["auth_token"]}'},
         )
         self.assert403(response)
 
         # Move recording in playlist
         response = self.client.post(
-            url_for("playlist_api_v1.move_playlist_item", playlist_mbid=playlist_mbid),
+            url_for(
+                "playlist_api_v1.move_playlist_item", playlist_mbid=playlist_mbid
+            ),
             json={},
-            headers={"Authorization": "Token {}".format(self.user2["auth_token"])}
+            headers={"Authorization": f'Token {self.user2["auth_token"]}'},
         )
         self.assert403(response)
 
         # Delete recording in playlist
         response = self.client.post(
-            url_for("playlist_api_v1.delete_playlist_item", playlist_mbid=playlist_mbid),
+            url_for(
+                "playlist_api_v1.delete_playlist_item", playlist_mbid=playlist_mbid
+            ),
             json={},
-            headers={"Authorization": "Token {}".format(self.user2["auth_token"])}
+            headers={"Authorization": f'Token {self.user2["auth_token"]}'},
         )
         self.assert403(response)
 
         # Delete a playlist
         response = self.client.post(
-            url_for("playlist_api_v1.delete_playlist", playlist_mbid=playlist_mbid),
+            url_for(
+                "playlist_api_v1.delete_playlist", playlist_mbid=playlist_mbid
+            ),
             json={},
-            headers={"Authorization": "Token {}".format(self.user2["auth_token"])}
+            headers={"Authorization": f'Token {self.user2["auth_token"]}'},
         )
         self.assert403(response)
 
@@ -1083,7 +1197,7 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.edit_playlist", playlist_mbid=playlist_mbid),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user2["auth_token"])}
+            headers={"Authorization": f'Token {self.user2["auth_token"]}'},
         )
         self.assert403(response)
 
@@ -1111,23 +1225,31 @@ class PlaylistAPITestCase(IntegrationTestCase):
         response = self.client.post(
             url_for("playlist_api_v1.create_playlist"),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         playlist_mbid = response.json["playlist_mbid"]
 
         response = self.client.post(
-            url_for("playlist_api_v1.export_playlist", playlist_mbid=playlist_mbid, service="lastfm"),
+            url_for(
+                "playlist_api_v1.export_playlist",
+                playlist_mbid=playlist_mbid,
+                service="lastfm",
+            ),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert400(response)
         self.assertEqual(response.json["error"], "Service lastfm is not supported. We currently only support 'spotify'.")
 
         response = self.client.post(
-            url_for("playlist_api_v1.export_playlist", playlist_mbid=playlist_mbid, service="spotify"),
+            url_for(
+                "playlist_api_v1.export_playlist",
+                playlist_mbid=playlist_mbid,
+                service="spotify",
+            ),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert400(response)
         self.assertEqual(response.json["error"], "Service spotify is not linked. Please link your spotify account first.")
@@ -1143,9 +1265,13 @@ class PlaylistAPITestCase(IntegrationTestCase):
         )
 
         response = self.client.post(
-            url_for("playlist_api_v1.export_playlist", playlist_mbid=playlist_mbid, service="spotify"),
+            url_for(
+                "playlist_api_v1.export_playlist",
+                playlist_mbid=playlist_mbid,
+                service="spotify",
+            ),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert400(response)
         self.assertEqual(
@@ -1179,9 +1305,13 @@ class PlaylistAPITestCase(IntegrationTestCase):
         mock_troi_bot.return_value = "foobar"
 
         response = self.client.post(
-            url_for("playlist_api_v1.export_playlist", playlist_mbid=playlist_mbid, service="spotify"),
+            url_for(
+                "playlist_api_v1.export_playlist",
+                playlist_mbid=playlist_mbid,
+                service="spotify",
+            ),
             json=playlist,
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])}
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
         )
         self.assert200(response)
         self.assertEqual(response.json, {"external_url": "foobar"})

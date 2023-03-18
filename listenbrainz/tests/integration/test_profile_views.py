@@ -27,8 +27,8 @@ class ProfileViewsTestCase(IntegrationTestCase):
         response = self.client.post(
             url_for('api_v1.submit_listen'),
             data=json.dumps(payload),
-            headers={'Authorization': 'Token {}'.format(self.user['auth_token'])},
-            content_type='application/json'
+            headers={'Authorization': f"Token {self.user['auth_token']}"},
+            content_type='application/json',
         )
         time.sleep(1)
         recalculate_all_user_data()
@@ -81,7 +81,7 @@ class ProfileViewsTestCase(IntegrationTestCase):
         resp = self.client.post(
             url_for('api_v1.latest_import'),
             data=json.dumps({'ts': val}),
-            headers={'Authorization': 'Token {}'.format(self.user['auth_token'])},
+            headers={'Authorization': f"Token {self.user['auth_token']}"},
             content_type='application/json',
         )
         self.assert200(resp)

@@ -18,7 +18,7 @@ def init_redis_connection(logger):
             _redis.check_connection()
             break
         except redis.exceptions.ConnectionError as e:
-            logger.error("Connection to redis failed: {}".format(str(e)))
+            logger.error(f"Connection to redis failed: {str(e)}")
             logger.error("Sleeping 2 seconds and trying again...")
             time.sleep(2)
 

@@ -55,7 +55,7 @@ class DumpTestCase(DatabaseTestCase):
         shutil.rmtree(self.tempdir)
 
     def test_create_private_dump(self):
-        time_now = datetime.today()
+        time_now = datetime.now()
         dump_location = db_dump.create_private_dump(self.tempdir, time_now)
         self.assertTrue(os.path.isfile(dump_location))
 
@@ -72,7 +72,7 @@ class DumpTestCase(DatabaseTestCase):
         data[0]["to_ts"] = to_ts1
         data[1]["to_ts"] = to_ts1
 
-        time_now = datetime.today()
+        time_now = datetime.now()
         dump_location = db_dump.create_statistics_dump(self.tempdir, time_now)
         self.assertTrue(os.path.isfile(dump_location))
 
@@ -98,12 +98,12 @@ class DumpTestCase(DatabaseTestCase):
 
     def test_add_dump_entry(self):
         prev_dumps = db_dump.get_dump_entries()
-        db_dump.add_dump_entry(datetime.today().strftime('%s'))
+        db_dump.add_dump_entry(datetime.now().strftime('%s'))
         now_dumps = db_dump.get_dump_entries()
         self.assertEqual(len(now_dumps), len(prev_dumps) + 1)
 
     def test_copy_table(self):
-        db_dump.add_dump_entry(datetime.today().strftime('%s'))
+        db_dump.add_dump_entry(datetime.now().strftime('%s'))
         with db.engine.connect() as connection:
             db_dump.copy_table(
                 cursor=connection.connection.cursor(),
@@ -113,7 +113,7 @@ class DumpTestCase(DatabaseTestCase):
             )
         dumps = db_dump.get_dump_entries()
         with open(os.path.join(self.tempdir, 'data_dump'), 'r') as f:
-            file_contents = [line for line in f]
+            file_contents = list(f)
         self.assertEqual(len(dumps), len(file_contents))
 
     def test_import_postgres_db(self):

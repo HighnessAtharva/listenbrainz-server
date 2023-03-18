@@ -29,7 +29,7 @@ class RecommendationFeedbackSubmit(BaseModel):
     def check_feedback_is_valid(cls, rating):
         expected_rating = get_allowed_ratings()
         if rating not in expected_rating:
-            raise ValueError('Feedback can only have a value in {}'.format(expected_rating))
+            raise ValueError(f'Feedback can only have a value in {expected_rating}')
         return rating
 
     _is_recording_mbid_valid: classmethod = validator("recording_mbid", allow_reuse=True)(check_valid_uuid)

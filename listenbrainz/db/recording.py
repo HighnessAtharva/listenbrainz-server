@@ -13,11 +13,7 @@ def _resolve_mbids_helper(curs, query, mbids):
         index[old_mbid] = new_mbid
         inverse_index[new_mbid] = old_mbid
 
-    new_mbids = []
-    for mbid in mbids:
-        # redirect the mbid to find the new recording if one exists otherwise use the original mbid itself
-        new_mbids.append(index.get(mbid, mbid))
-
+    new_mbids = [index.get(mbid, mbid) for mbid in mbids]
     return new_mbids, index, inverse_index
 
 
@@ -25,7 +21,7 @@ def resolve_redirect_mbids(curs, table, mbids):
     """ Given a list of mbids, resolve redirects if any and return the list of new mbids, a dict of
     redirected mbids and a reverse index of the same.
     """
-    redirect_table = table + "_gid_redirect"
+    redirect_table = f"{table}_gid_redirect"
     query = SQL("""
           WITH mbids (gid) AS (VALUES %s)
         SELECT redirect.gid::TEXT AS old
@@ -108,13 +104,16 @@ def load_recordings_from_mbids(ts_curs, mbids: Iterable[str]) -> dict:
         ac_names = data.pop("ac_names")
         ac_join_phrases = data.pop("ac_join_phrases")
 
-        artists = []
-        for (mbid, name, join_phrase) in zip(data["artist_mbids"], ac_names, ac_join_phrases):
-            artists.append({
+        artists = [
+            {
                 "artist_mbid": mbid,
                 "artist_credit_name": name,
-                "join_phrase": join_phrase
-            })
+                "join_phrase": join_phrase,
+            }
+            for mbid, name, join_phrase in zip(
+                data["artist_mbids"], ac_names, ac_join_phrases
+            )
+        ]
         data["artists"] = artists
         rows[recording_mbid] = data
 

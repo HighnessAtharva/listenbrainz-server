@@ -75,9 +75,7 @@ class ArtistCreditRecordingLookupQuery(Query):
 
                     if self.debug:
                         self.log_lines.append(
-                            "exact match: '%s' '%s' %s" %
-                            (data['artist_credit_name'],
-                             data['recording_name'],
-                             data['recording_mbid']))
+                            f"exact match: '{data['artist_credit_name']}' '{data['recording_name']}' {data['recording_mbid']}"
+                        )
 
                 return results

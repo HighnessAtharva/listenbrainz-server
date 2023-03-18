@@ -226,13 +226,13 @@ class MBIDMapperMetadataAPI:
 
     def lookup(self, artist_credit_name_p, recording_name_p):
 
-        query = artist_credit_name_p + " " + recording_name_p
+        query = f"{artist_credit_name_p} {recording_name_p}"
         if self.remove_stop_words:
-            cleaned_query = []
-            for word in query.split(" "):
-                if word not in ENGLISH_STOP_WORD_INDEX:
-                    cleaned_query.append(word)
-
+            cleaned_query = [
+                word
+                for word in query.split(" ")
+                if word not in ENGLISH_STOP_WORD_INDEX
+            ]
             query = " ".join(cleaned_query)
 
         search_parameters = {
@@ -252,10 +252,7 @@ class MBIDMapperMetadataAPI:
             except typesense.exceptions.RequestMalformed:
                 return None
 
-        if len(hits["hits"]) == 0:
-            return None
-
-        return hits["hits"][0]
+        return None if len(hits["hits"]) == 0 else hits["hits"][0]
 
     def lookup_and_evaluate_hit(self, artist_credit_name_p, recording_name_p, is_ac_detuned, is_r_detuned):
         hit = self.lookup(artist_credit_name_p, recording_name_p)
@@ -269,20 +266,21 @@ class MBIDMapperMetadataAPI:
             is_ac_detuned,
             is_r_detuned
         )
-        if not hit:
-            return None
-
-        return {
-            'artist_credit_name': hit['document']['artist_credit_name'],
-            'artist_credit_id': hit['document']['artist_credit_id'],
-            'artist_mbids': hit['document']['artist_mbids'][1:-1].split(","),
-            'release_name': hit['document']['release_name'],
-            'release_mbid': hit['document']['release_mbid'],
-            'recording_name': hit['document']['recording_name'],
-            'recording_mbid': hit['document']['recording_mbid'],
-            'year': hit['document']['year'],
-            'match_type': match_type
-        }
+        return (
+            {
+                'artist_credit_name': hit['document']['artist_credit_name'],
+                'artist_credit_id': hit['document']['artist_credit_id'],
+                'artist_mbids': hit['document']['artist_mbids'][1:-1].split(","),
+                'release_name': hit['document']['release_name'],
+                'release_mbid': hit['document']['release_mbid'],
+                'recording_name': hit['document']['recording_name'],
+                'recording_mbid': hit['document']['recording_mbid'],
+                'year': hit['document']['year'],
+                'match_type': match_type,
+            }
+            if hit
+            else None
+        )
 
     def search(self, artist_credit_name, recording_name):
         """
@@ -300,31 +298,34 @@ class MBIDMapperMetadataAPI:
         r_detuned = prepare_query(self.detune_query_string(recording_name, False))
         self._log(f"ac_detuned: '{ac_detuned}' r_detuned: '{r_detuned}'")
 
-        # lookup without any detuning
-        hit = self.lookup_and_evaluate_hit(artist_credit_name_p, recording_name_p, False, False)
-        if hit:
+        if hit := self.lookup_and_evaluate_hit(
+            artist_credit_name_p, recording_name_p, False, False
+        ):
             return hit
 
         # lookup with only artist credit detuned
         if ac_detuned:
             self._log("Detune only artist_credit")
-            hit = self.lookup_and_evaluate_hit(ac_detuned, recording_name_p, True, False)
-            if hit:
+            if hit := self.lookup_and_evaluate_hit(
+                ac_detuned, recording_name_p, True, False
+            ):
                 return hit
 
         # lookup with both artist credit and recording detuned
         if ac_detuned and r_detuned:
             self._log("Detune artist_credit and recording")
-            hit = self.lookup_and_evaluate_hit(ac_detuned, r_detuned, True, True)
-            if hit:
+            if hit := self.lookup_and_evaluate_hit(
+                ac_detuned, r_detuned, True, True
+            ):
                 return hit
 
         # this case is the last one because it didn't exist in earlier versions and
         # preserving order of cases with older versions is probably sensible.
         if r_detuned:
             self._log("Detune only recording")
-            hit = self.lookup_and_evaluate_hit(artist_credit_name_p, r_detuned, False, True)
-            if hit:
+            if hit := self.lookup_and_evaluate_hit(
+                artist_credit_name_p, r_detuned, False, True
+            ):
                 return hit
 
         self._log("FAIL (if this is the only line of output, it means we literally have no clue what this is)")

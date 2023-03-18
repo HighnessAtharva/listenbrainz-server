@@ -55,8 +55,7 @@ def perform_lookup(column, metadata, generate_lookup):
 
     remaining_items = {}
     for idx, item in metadata.items():
-        spotify_ids = index.get(idx)
-        if spotify_ids:
+        if spotify_ids := index.get(idx):
             metadata[idx]["spotify_track_ids"] = spotify_ids
         else:
             remaining_items[idx] = item
@@ -87,10 +86,7 @@ def combined_without_album_detuned(item) -> str:
 def lookup_using_metadata(params: list[dict]):
     """ Given a list of dicts each having artist name, release name and track name, attempt to find spotify track
     id for each. """
-    metadata = {}
-    for idx, item in enumerate(params):
-        metadata[idx] = item
-
+    metadata = dict(enumerate(params))
     # first attempt matching on artist, track and release followed by trying various detunings for unmatched recordings
     _, remaining_items = perform_lookup(LookupType.ALL, metadata, combined_all)
     _, remaining_items = perform_lookup(LookupType.ALL, remaining_items, combined_all_detuned)

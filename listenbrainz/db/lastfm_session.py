@@ -40,8 +40,7 @@ class Session(object):
             """), {
                 'sid': session_key,
             })
-            row = result.fetchone()
-            if row:
+            if row := result.fetchone():
                 return Session(row.id, row.user_id, row.sid, row.api_key, row.ts)
             return None
 

@@ -19,7 +19,7 @@ def generate_data(from_date, num_records, user_name):
         db_user.create(user_name)
         user = db_user.get_by_mb_id(user_name)
 
-    for i in range(num_records):
+    for _ in range(num_records):
         current_date += 1   # Add one second
         item = Listen(
             user_id=user['id'],

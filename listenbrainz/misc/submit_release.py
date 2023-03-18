@@ -56,7 +56,8 @@ def submit_release_impl(token, release, url):
     """
 
     resp = requests.get(
-        "https://musicbrainz.org/ws/2/release/%s?inc=recordings+artists&fmt=json" % release)
+        f"https://musicbrainz.org/ws/2/release/{release}?inc=recordings+artists&fmt=json"
+    )
     if resp.status_code != 200:
         print("Failed to fetch album: %d" % resp.code)
         sys.exit(-1)
@@ -84,7 +85,7 @@ def submit_release_impl(token, release, url):
             submit_listen(url=url, listen_type='single',
                           payload=payload, token=token)
         except requests.exceptions.ConnectionError as err:
-            print("Cannot connect to server: %s" % str(err))
+            print(f"Cannot connect to server: {str(err)}")
             sys.exit(0)
         except requests.exceptions.HTTPError as err:
             print("Cannot submit listen. Is your user token correct?\n%s" % str(err))

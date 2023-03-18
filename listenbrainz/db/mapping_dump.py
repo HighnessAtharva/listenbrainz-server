@@ -132,12 +132,14 @@ def _create_dump(location: str, lb_engine: sqlalchemy.engine.Engine,
             for table in tables:
                 try:
                     engine_name = tables[table]['engine']
-                    if engine_name == 'mb':
+                    if (
+                        engine_name == 'mb'
+                        or (engine_name != 'lb_if_set' or not lb_engine)
+                        and engine_name == 'lb_if_set'
+                    ):
                         engine = mb_engine
-                    elif engine_name == 'lb_if_set' and lb_engine:
-                        engine = lb_engine
                     elif engine_name == 'lb_if_set':
-                        engine = mb_engine
+                        engine = lb_engine
                     else:
                         raise ValueError(f'Unknown table engine name: {engine_name}')
                     with engine.connect() as connection:
@@ -172,10 +174,7 @@ def _create_dump(location: str, lb_engine: sqlalchemy.engine.Engine,
 def create_mapping_dump(location: str, dump_time: datetime, use_lb_conn: bool):
     """ Create postgres database dump of the mapping supplemental tables.
     """
-    if use_lb_conn:
-        lb_engine = timescale.engine
-    else:
-        lb_engine = None
+    lb_engine = timescale.engine if use_lb_conn else None
     musicbrainz_db.init_db_engine(current_app.config['MB_DATABASE_MAPPING_URI'])
     return _create_dump(
         location=location,

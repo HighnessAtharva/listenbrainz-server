@@ -52,8 +52,7 @@ class Token(object):
 
         with db.engine.begin() as connection:
             result = connection.execute(text(query), params)
-            row = result.fetchone()
-            if row:
+            if row := result.fetchone():
                 return Token(row.id, row.user_id, row.token, row.api_key, row.ts)
             return None
 

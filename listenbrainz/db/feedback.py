@@ -135,7 +135,7 @@ def get_feedback_for_user(user_id: int, limit: int, offset: int, score: int = No
         result = connection.execute(sqlalchemy.text(query), args)
         feedback = [Feedback(**row) for row in result.mappings()]
 
-    if metadata and len(feedback) > 0:
+    if metadata and feedback:
         feedback = fetch_track_metadata_for_items(feedback)
 
     return feedback
@@ -219,7 +219,7 @@ def get_feedback_count_for_recording(recording_type: str, recording: str) -> int
         Returns:
             The total number of recording feedback for a given recording
     """
-    query = "SELECT count(*) AS value FROM recording_feedback WHERE " + recording_type + " = :recording"
+    query = f"SELECT count(*) AS value FROM recording_feedback WHERE {recording_type} = :recording"
     with db.engine.connect() as connection:
         result = connection.execute(text(query), {"recording": recording})
         count = int(result.fetchone().value)
@@ -279,7 +279,7 @@ def get_feedback_for_multiple_recordings_for_user(user_id: int, user_name: str, 
     if recording_msids and recording_mbids:  # both msid and mbid list are not empty
         params["recording_msids"] = recording_msids
         params["recording_mbids"] = recording_mbids
-        query_remaining = query_msid + " UNION " + query_mbid
+        query_remaining = f"{query_msid} UNION {query_mbid}"
     elif recording_msids:  # only msid list is not empty
         params["recording_msids"] = recording_msids
         query_remaining = query_msid

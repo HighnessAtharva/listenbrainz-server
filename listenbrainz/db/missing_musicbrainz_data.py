@@ -105,12 +105,12 @@ def get_user_missing_musicbrainz_data(user_id: int, source: str):
         row = result.mappings().first()
 
     try:
-        if row:
-            missing_mb_data = UserMissingMusicBrainzDataJson(missing_musicbrainz_data=row["data"]["missing_musicbrainz_data"]).missing_musicbrainz_data
-            if missing_mb_data:
-                return remove_mapped_mb_data(user_id, missing_mb_data), row["created"]
-        else:
+        if not row:
             return None, None
+        if missing_mb_data := UserMissingMusicBrainzDataJson(
+            missing_musicbrainz_data=row["data"]["missing_musicbrainz_data"]
+        ).missing_musicbrainz_data:
+            return remove_mapped_mb_data(user_id, missing_mb_data), row["created"]
     except ValidationError:
         current_app.logger.error("""ValidationError when getting missing musicbrainz data for source "{source}"
                                  for user with user_id: {user_id}. Data: {data}""".format(source=source, user_id=user_id,
@@ -131,9 +131,8 @@ def remove_mapped_mb_data(user_id: int, missing_musicbrainz_data: list[UserMissi
     missing_data_map = {r.recording_msid: r for r in missing_musicbrainz_data}
     existing_mappings = check_manual_mapping_exists(user_id, missing_data_map.keys())
 
-    remaining_data = []
-    for item in missing_musicbrainz_data:
-        if item.recording_msid not in existing_mappings:
-            remaining_data.append(item.dict())
-
-    return remaining_data
+    return [
+        item.dict()
+        for item in missing_musicbrainz_data
+        if item.recording_msid not in existing_mappings
+    ]

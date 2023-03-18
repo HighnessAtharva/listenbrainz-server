@@ -171,9 +171,7 @@ class DumpListenStore:
 
             end_time = datetime(next_year, next_month, 1)
             end_time = end_time - timedelta(seconds=1)
-            if end_time > end_time_range:
-                end_time = end_time_range
-
+            end_time = min(end_time, end_time_range)
             filename = os.path.join(temp_dir, str(year), "%d.listens" % month)
             try:
                 os.makedirs(os.path.join(temp_dir, str(year)))
@@ -249,13 +247,13 @@ class DumpListenStore:
             end_time = datetime.now()
 
         self.log.info('Beginning dump of listens from TimescaleDB...')
-        full_dump = bool(start_time == datetime.utcfromtimestamp(0))
+        full_dump = start_time == datetime.utcfromtimestamp(0)
         archive_name = 'listenbrainz-listens-dump-{dump_id}-{time}'.format(dump_id=dump_id,
                                                                            time=end_time.strftime('%Y%m%d-%H%M%S'))
         if full_dump:
-            archive_name = '{}-full'.format(archive_name)
+            archive_name = f'{archive_name}-full'
         else:
-            archive_name = '{}-incremental'.format(archive_name)
+            archive_name = f'{archive_name}-incremental'
         archive_path = os.path.join(
             location, '{filename}.tar.xz'.format(filename=archive_name))
         with open(archive_path, 'w') as archive:
@@ -495,13 +493,13 @@ class DumpListenStore:
             end_time = datetime.now()
 
         self.log.info('Beginning spark dump of listens from TimescaleDB...')
-        full_dump = bool(start_time == datetime.utcfromtimestamp(DATA_START_YEAR_IN_SECONDS))
+        full_dump = start_time == datetime.utcfromtimestamp(DATA_START_YEAR_IN_SECONDS)
         archive_name = 'listenbrainz-spark-dump-{dump_id}-{time}'.format(dump_id=dump_id,
                                                                          time=end_time.strftime('%Y%m%d-%H%M%S'))
         if full_dump:
-            archive_name = '{}-full'.format(archive_name)
+            archive_name = f'{archive_name}-full'
         else:
-            archive_name = '{}-incremental'.format(archive_name)
+            archive_name = f'{archive_name}-incremental'
         archive_path = os.path.join(
             location, '{filename}.tar'.format(filename=archive_name))
 
@@ -523,7 +521,8 @@ class DumpListenStore:
                     end = datetime(year=year + 1, day=1, month=1)
 
                 self.log.info(
-                    "dump %s to %s" % (start.strftime("%Y-%m-%d %H:%M:%S"), end.strftime("%Y-%m-%d %H:%M:%S")))
+                    f'dump {start.strftime("%Y-%m-%d %H:%M:%S")} to {end.strftime("%Y-%m-%d %H:%M:%S")}'
+                )
 
                 # This try block is here in an effort to expose bugs that occur during testing
                 # Without it sometimes test pass and sometimes they give totally unrelated errors.
@@ -532,7 +531,7 @@ class DumpListenStore:
                     parquet_index = self.write_parquet_files(archive_name, temp_dir, tar, dump_type,
                                                              start, end, parquet_index)
                 except Exception as err:
-                    self.log.info("likely test failure: " + str(err))
+                    self.log.info(f"likely test failure: {str(err)}")
                     raise
 
             shutil.rmtree(temp_dir)

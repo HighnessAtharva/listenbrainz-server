@@ -50,9 +50,8 @@ def import_user_similarities(data):
 
     except psycopg2.errors.OperationalError as err:
         conn.rollback()
-        current_app.logger.error(
-            "Error: Cannot import user similarites: %s" % str(err))
-        return (0, 0.0, "Error: Cannot import user similarites: %s" % str(err))
+        current_app.logger.error(f"Error: Cannot import user similarites: {str(err)}")
+        return 0, 0.0, f"Error: Cannot import user similarites: {str(err)}"
 
     # Next lookup user names and insert them into the new similar_users table
     try:
@@ -85,8 +84,9 @@ def import_user_similarities(data):
     except psycopg2.errors.OperationalError as err:
         conn.rollback()
         current_app.logger.error(
-            "Error: Cannot correlate user similarity user name: %s" % str(err))
-        return (0, 0.0, "Error: Cannot correlate user similarity user name: %s" % str(err))
+            f"Error: Cannot correlate user similarity user name: {str(err)}"
+        )
+        return 0, 0.0, f"Error: Cannot correlate user similarity user name: {str(err)}"
 
     # Finally rotate the table into place
     try:
@@ -99,8 +99,13 @@ def import_user_similarities(data):
     except psycopg2.errors.OperationalError as err:
         conn.rollback()
         current_app.logger.error(
-            "Error: Failed to rotate similar_users table into place: %s" % str(err))
-        return (0, 0.0, "Error: Failed to rotate similar_users table into place: %s" % str(err))
+            f"Error: Failed to rotate similar_users table into place: {str(err)}"
+        )
+        return (
+            0,
+            0.0,
+            f"Error: Failed to rotate similar_users table into place: {str(err)}",
+        )
 
     # Last, delete the old table
     try:
@@ -112,8 +117,9 @@ def import_user_similarities(data):
     except psycopg2.errors.OperationalError as err:
         conn.rollback()
         current_app.logger.error(
-            "Error: Failed to clean up old similar user table: %s" % str(err))
-        return (0, 0.0, "Error: Failed to clean up old similar user table: %s" % str(err))
+            f"Error: Failed to clean up old similar user table: {str(err)}"
+        )
+        return 0, 0.0, f"Error: Failed to clean up old similar user table: {str(err)}"
 
     return (user_count, target_user_count / user_count, "")
 
@@ -151,7 +157,9 @@ def get_top_similar_users(count: int = 200):
                 else:
                     similar_users[other_user + user] = (other_user, user, similarity)
     except psycopg2.errors.OperationalError as err:
-        current_app.logger.error("Error: Failed to fetch top similar users %s" % str(err))
+        current_app.logger.error(
+            f"Error: Failed to fetch top similar users {str(err)}"
+        )
         return []
 
     similar_users = [similar_users[u] for u in similar_users]

@@ -138,11 +138,18 @@ def get_many_users_by_mb_id(musicbrainz_ids: List[str]):
         If a provided username doesn't exist, it won't be returned.
     """
     with db.engine.connect() as connection:
-        result = connection.execute(sqlalchemy.text("""
+        result = connection.execute(
+            sqlalchemy.text(
+                """
             SELECT {columns}
               FROM "user"
              WHERE LOWER(musicbrainz_id) in :mb_ids
-        """.format(columns=','.join(USER_GET_COLUMNS))), {"mb_ids": tuple([mbname.lower() for mbname in musicbrainz_ids])})
+        """.format(
+                    columns=','.join(USER_GET_COLUMNS)
+                )
+            ),
+            {"mb_ids": tuple(mbname.lower() for mbname in musicbrainz_ids)},
+        )
         return {row["musicbrainz_id"].lower(): row for row in result.mappings()}
 
 
@@ -263,8 +270,7 @@ def update_last_login(musicbrainz_id):
             })
         except sqlalchemy.exc.ProgrammingError as err:
             logger.error(err)
-            raise DatabaseException(
-                "Couldn't update last_login: %s" % str(err))
+            raise DatabaseException(f"Couldn't update last_login: {str(err)}")
 
 
 def get_all_users(created_before=None, columns=None):
@@ -325,7 +331,7 @@ def delete(id):
             })
         except sqlalchemy.exc.ProgrammingError as err:
             logger.error(err)
-            raise DatabaseException("Couldn't delete user: %s" % str(err))
+            raise DatabaseException(f"Couldn't delete user: {str(err)}")
 
 
 def agree_to_gdpr(musicbrainz_id):
@@ -345,8 +351,7 @@ def agree_to_gdpr(musicbrainz_id):
             })
         except sqlalchemy.exc.ProgrammingError as err:
             logger.error(err)
-            raise DatabaseException(
-                "Couldn't update gdpr agreement for user: %s" % str(err))
+            raise DatabaseException(f"Couldn't update gdpr agreement for user: {str(err)}")
 
 
 def update_musicbrainz_row_id(musicbrainz_id, musicbrainz_row_id):
@@ -369,7 +374,8 @@ def update_musicbrainz_row_id(musicbrainz_id, musicbrainz_row_id):
         except sqlalchemy.exc.ProgrammingError as err:
             logger.error(err)
             raise DatabaseException(
-                "Couldn't update musicbrainz row id for user: %s" % str(err))
+                f"Couldn't update musicbrainz row id for user: {str(err)}"
+            )
 
 
 def get_by_mb_row_id(musicbrainz_row_id, musicbrainz_id=None):
@@ -468,10 +474,7 @@ def get_users_by_id(user_ids: List[int]):
         """), {
             'user_ids': tuple(user_ids)
         })
-        row_id_username_map = {}
-        for row in result.fetchall():
-            row_id_username_map[row.id] = row.musicbrainz_id
-        return row_id_username_map
+        return {row.id: row.musicbrainz_id for row in result.fetchall()}
 
 
 def is_user_reported(reporter_id: int, reported_id: int):
@@ -487,7 +490,7 @@ def is_user_reported(reporter_id: int, reported_id: int):
             "reporter_id": reporter_id,
             "reported_id": reported_id
         })
-        return True if result.fetchone() else False
+        return bool(result.fetchone())
 
 
 def report_user(reporter_id: int, reported_id: int, reason: str = None):
@@ -528,8 +531,7 @@ def update_user_details(lb_id: int, musicbrainz_id: str, email: str):
             })
         except sqlalchemy.exc.ProgrammingError as err:
             logger.error(err)
-            raise DatabaseException(
-                "Couldn't update user's email: %s" % str(err))
+            raise DatabaseException(f"Couldn't update user's email: {str(err)}")
 
 def search_query(search_term:str, limit:int, connection:any):
     result = connection.execute(sqlalchemy.text("""
@@ -542,8 +544,7 @@ def search_query(search_term:str, limit:int, connection:any):
             "search_term": search_term,
             "limit": limit
         })
-    rows = result.fetchall()
-    return rows
+    return result.fetchall()
 
 
 def search(search_term: str, limit: int, searcher_id: int = None) -> List[Tuple[str, float, float]]:
@@ -582,12 +583,5 @@ def search_user_name(search_term: str, limit: int) -> List[object]:
     with db.engine.connect() as connection:
         rows = search_query(search_term,limit,connection)
 
-        if not rows:
-            return []
-
-        search_results = []
-
-        for row in rows:
-            search_results.append({"user_name":row.musicbrainz_id})
-        return search_results
+        return [{"user_name":row.musicbrainz_id} for row in rows] if rows else []
 

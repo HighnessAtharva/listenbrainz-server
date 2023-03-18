@@ -15,7 +15,7 @@ INTERMEDIARY_COUNT_MULTIPLIER = 4
 
 def adapt_cube(cube):
     """ Function required by Postgres for inserting/searching cube extension colors """
-    return AsIs("'(%s, %s, %s)'" % (adapt(cube.red), adapt(cube.green), adapt(cube.blue)))
+    return AsIs(f"'({adapt(cube.red)}, {adapt(cube.green)}, {adapt(cube.blue)})'")
 
 
 register_adapter(ColorCube, adapt_cube)

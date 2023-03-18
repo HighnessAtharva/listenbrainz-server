@@ -50,7 +50,7 @@ class RedisListenStore:
         try:
             cache._r.ping()
         except redis.exceptions.ConnectionError as e:
-            self.log.error("Redis ping didn't work: {}".format(str(e)))
+            self.log.error(f"Redis ping didn't work: {str(e)}")
             raise
 
     def update_recent_listens(self, unique):
@@ -59,12 +59,10 @@ class RedisListenStore:
             is not a critical action, so if it fails, it fails. Let's live with it.
         """
 
-        recent = {}
-        for listen in unique:
-            recent[orjson.dumps(listen.to_json())] = float(listen.ts_since_epoch)
-
-        # Don't take this very seriously -- if it fails, really no big deal. Let is go.
-        if recent:
+        if recent := {
+            orjson.dumps(listen.to_json()): float(listen.ts_since_epoch)
+            for listen in unique
+        }:
             cache._r.zadd(cache._prep_key(self.RECENT_LISTENS_KEY), recent, nx=True)
 
             # Don't prune the sorted list each time, but only when it reaches twice the desired size
@@ -76,11 +74,12 @@ class RedisListenStore:
         """
             Get the max number of most recent listens
         """
-        recent = []
-        for listen in cache._r.zrevrange(cache._prep_key(self.RECENT_LISTENS_KEY), 0, max - 1):
-            recent.append(Listen.from_json(orjson.loads(listen)))
-
-        return recent
+        return [
+            Listen.from_json(orjson.loads(listen))
+            for listen in cache._r.zrevrange(
+                cache._prep_key(self.RECENT_LISTENS_KEY), 0, max - 1
+            )
+        ]
 
     def increment_listen_count_for_day(self, day: datetime, count: int):
         """ Increment the number of listens submitted on the day `day`
@@ -94,7 +93,6 @@ class RedisListenStore:
         """ Get the number of listens submitted for day `day`, return None if not available.
         """
         key = self.LISTEN_COUNT_PER_DAY_KEY + day.strftime('%Y%m%d')
-        listen_count = cache.get(key, decode=False)
-        if listen_count:
+        if listen_count := cache.get(key, decode=False):
             return int(listen_count)
         return None

@@ -52,8 +52,9 @@ class SpotifyMetadataCache(ConsumerMixin):
         listens = json.loads(message.body)
 
         for listen in listens:
-            spotify_album_id = listen["track_metadata"]["additional_info"].get("spotify_album_id")
-            if spotify_album_id:
+            if spotify_album_id := listen["track_metadata"]["additional_info"].get(
+                "spotify_album_id"
+            ):
                 self.queue.add_spotify_ids(spotify_album_id)
 
         message.ack()

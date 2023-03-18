@@ -122,10 +122,8 @@ class MappingJobQueue(threading.Thread):
         msids = []
         with timescale.engine.connect() as connection:
             curs = connection.execute(sqlalchemy.text(query), args)
-            for row in curs.fetchall():
-                msids.append(row["recording_msid"])
-
-        if len(msids) == 0:
+            msids.extend(row["recording_msid"] for row in curs.fetchall())
+        if not msids:
             return 0
 
         with timescale.engine.connect() as connection:
@@ -153,15 +151,6 @@ class MappingJobQueue(threading.Thread):
         """Fetch more legacy listens from the listens table by doing an left join
            on the matched listens, finding the next chunk of legacy listens to look up.
            Listens are added to the queue with a low priority."""
-
-        # Find listens that have no entry in the mapping yet.
-        legacy_query = """SELECT data->'track_metadata'->'additional_info'->>'recording_msid'::TEXT AS recording_msid
-                            FROM listen
-                       LEFT JOIN mbid_mapping m
-                              ON data->'track_metadata'->'additional_info'->>'recording_msid' = m.recording_msid::text
-                           WHERE m.recording_mbid IS NULL
-                             AND listened_at <= :max_ts
-                             AND listened_at > :min_ts"""
 
         # Find mapping rows that need to be rechecked
         recheck_query = """SELECT recording_msid
@@ -200,6 +189,15 @@ class MappingJobQueue(threading.Thread):
             self.app.logger.info("Loaded %d listens to be rechecked." % count)
             return
         else:
+            # Find listens that have no entry in the mapping yet.
+            legacy_query = """SELECT data->'track_metadata'->'additional_info'->>'recording_msid'::TEXT AS recording_msid
+                            FROM listen
+                       LEFT JOIN mbid_mapping m
+                              ON data->'track_metadata'->'additional_info'->>'recording_msid' = m.recording_msid::text
+                           WHERE m.recording_mbid IS NULL
+                             AND listened_at <= :max_ts
+                             AND listened_at > :min_ts"""
+
             # If none, check for old legacy listens
             count = self.fetch_and_queue_listens(legacy_query, {"max_ts": self.legacy_listens_index_date,
                                                                 "min_ts": self.legacy_listens_index_date - LEGACY_LISTENS_LOAD_WINDOW},
@@ -216,66 +214,67 @@ class MappingJobQueue(threading.Thread):
     def update_metrics(self, stats):
         """ Calculate stats and print status to stdout and report metrics."""
 
-        if stats["total"] != 0:
-            if self.last_processed:
-                listens_per_sec = int(
-                    (stats["processed"] - self.last_processed) / UPDATE_INTERVAL)
-            else:
-                listens_per_sec = 0
-            self.last_processed = stats["processed"]
+        if stats["total"] == 0:
+            return
+        if self.last_processed:
+            listens_per_sec = int(
+                (stats["processed"] - self.last_processed) / UPDATE_INTERVAL)
+        else:
+            listens_per_sec = 0
+        self.last_processed = stats["processed"]
 
-            percent = (stats["exact_match"] + stats["high_quality"] + stats["med_quality"] +
-                       stats["low_quality"]) / stats["total"] * 100.00
-            self.app.logger.info("total %d matched %d/%d legacy: %d queue: %d %d l/s" %
-                                 (stats["total"],
-                                  stats["exact_match"] + stats["high_quality"] + stats["med_quality"] + stats["low_quality"],
-                                  stats["no_match"],
-                                  stats["legacy"],
-                                  self.queue.qsize(),
-                                  listens_per_sec))
+        percent = (stats["exact_match"] + stats["high_quality"] + stats["med_quality"] +
+                   stats["low_quality"]) / stats["total"] * 100.00
+        self.app.logger.info("total %d matched %d/%d legacy: %d queue: %d %d l/s" %
+                             (stats["total"],
+                              stats["exact_match"] + stats["high_quality"] + stats["med_quality"] + stats["low_quality"],
+                              stats["no_match"],
+                              stats["legacy"],
+                              self.queue.qsize(),
+                              listens_per_sec))
 
-            if stats["last_exact_match"] is None:
-                stats["last_exact_match"] = stats["exact_match"]
-                stats["last_high_quality"] = stats["high_quality"]
-                stats["last_med_quality"] = stats["med_quality"]
-                stats["last_low_quality"] = stats["low_quality"]
-                stats["last_no_match"] = stats["no_match"]
-            metrics.set("listenbrainz-mbid-mapping-writer",
-                        total_match_p=percent,
-                        exact_match_p=stats["exact_match"] /
-                        stats["total"] * 100.00,
-                        high_quality_p=stats["high_quality"] /
-                        stats["total"] * 100.00,
-                        med_quality_p=stats["med_quality"] /
-                        stats["total"] * 100.00,
-                        low_quality_p=stats["low_quality"] /
-                        stats["total"] * 100.00,
-                        no_match_p=stats["no_match"] / stats["total"] * 100.00,
-                        errors_p=stats["errors"] / stats["total"] * 100.00,
-                        total_listens=stats["total"],
-                        exact_match=stats["exact_match"],
-                        high_quality=stats["high_quality"],
-                        med_quality=stats["med_quality"],
-                        low_quality=stats["low_quality"],
-                        no_match=stats["no_match"],
-                        errors=stats["errors"],
-                        qsize=self.queue.qsize(),
-                        exact_match_rate=stats["exact_match"] - stats["last_exact_match"],
-                        high_quality_rate=stats["high_quality"] - stats["last_high_quality"],
-                        med_quality_rate=stats["med_quality"] - stats["last_med_quality"],
-                        low_quality_rate=stats["low_quality"] - stats["last_low_quality"],
-                        no_match_rate=stats["no_match"] - stats["last_no_match"],
-                        listens_per_sec=listens_per_sec,
-                        listens_matched_p=stats["listens_matched"] / (stats["listen_count"] or .000001) * 100.0,
-                        legacy_index_date=datetime.date.fromtimestamp(self.legacy_listens_index_date).strftime("%Y-%m-%d"))
-
+        if stats["last_exact_match"] is None:
             stats["last_exact_match"] = stats["exact_match"]
             stats["last_high_quality"] = stats["high_quality"]
             stats["last_med_quality"] = stats["med_quality"]
             stats["last_low_quality"] = stats["low_quality"]
             stats["last_no_match"] = stats["no_match"]
-            stats["listens_matched"] = 0
-            stats["listen_count"] = 0
+        metrics.set("listenbrainz-mbid-mapping-writer",
+                    total_match_p=percent,
+                    exact_match_p=stats["exact_match"] /
+                    stats["total"] * 100.00,
+                    high_quality_p=stats["high_quality"] /
+                    stats["total"] * 100.00,
+                    med_quality_p=stats["med_quality"] /
+                    stats["total"] * 100.00,
+                    low_quality_p=stats["low_quality"] /
+                    stats["total"] * 100.00,
+                    no_match_p=stats["no_match"] / stats["total"] * 100.00,
+                    errors_p=stats["errors"] / stats["total"] * 100.00,
+                    total_listens=stats["total"],
+                    exact_match=stats["exact_match"],
+                    high_quality=stats["high_quality"],
+                    med_quality=stats["med_quality"],
+                    low_quality=stats["low_quality"],
+                    no_match=stats["no_match"],
+                    errors=stats["errors"],
+                    qsize=self.queue.qsize(),
+                    exact_match_rate=stats["exact_match"] - stats["last_exact_match"],
+                    high_quality_rate=stats["high_quality"] - stats["last_high_quality"],
+                    med_quality_rate=stats["med_quality"] - stats["last_med_quality"],
+                    low_quality_rate=stats["low_quality"] - stats["last_low_quality"],
+                    no_match_rate=stats["no_match"] - stats["last_no_match"],
+                    listens_per_sec=listens_per_sec,
+                    listens_matched_p=stats["listens_matched"] / (stats["listen_count"] or .000001) * 100.0,
+                    legacy_index_date=datetime.date.fromtimestamp(self.legacy_listens_index_date).strftime("%Y-%m-%d"))
+
+        stats["last_exact_match"] = stats["exact_match"]
+        stats["last_high_quality"] = stats["high_quality"]
+        stats["last_med_quality"] = stats["med_quality"]
+        stats["last_low_quality"] = stats["low_quality"]
+        stats["last_no_match"] = stats["no_match"]
+        stats["listens_matched"] = 0
+        stats["listen_count"] = 0
 
 
     def run(self):
@@ -303,11 +302,11 @@ class MappingJobQueue(threading.Thread):
                      GROUP BY match_type"""
             curs = connection.execute(query)
             while True:
-                result = curs.fetchone()
-                if not result:
-                    break
+                if result := curs.fetchone():
+                    stats[result[1]] = result[0]
 
-                stats[result[1]] = result[0]
+                else:
+                    break
 
             query = """SELECT COUNT(*)
                          FROM mbid_mapping_metadata"""
@@ -332,8 +331,7 @@ class MappingJobQueue(threading.Thread):
 
                         # Check for completed threads and reports errors if any occurred
                         for complete in completed:
-                            exc = complete.exception()
-                            if exc:
+                            if exc := complete.exception():
                                 self.app.logger.error("Error in listen mbid mapping writer:", exc_info=exc)
                                 stats["errors"] += 1
                             else:
@@ -343,7 +341,7 @@ class MappingJobQueue(threading.Thread):
                             del futures[complete]
 
                         # Check to see if more legacy listens need to be loaded
-                        for i in range(MAX_QUEUED_JOBS - len(uncompleted)):
+                        for _ in range(MAX_QUEUED_JOBS - len(uncompleted)):
                             try:
                                 job = self.queue.get(False)
                             except Empty:

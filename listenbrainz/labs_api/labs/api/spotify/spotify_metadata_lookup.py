@@ -20,11 +20,12 @@ class SpotifyIdFromMetadataQuery(Query):
         return ['artist_name', 'release_name', 'track_name', 'spotify_track_ids']
 
     def fetch(self, params, offset=-1, count=-1):
-        data = []
-        for param in params:
-            data.append({
+        data = [
+            {
                 "artist_name": param.get("[artist_name]", ""),
                 "release_name": param.get("[release_name]", ""),
-                "track_name": param.get("[track_name]", "")
-            })
+                "track_name": param.get("[track_name]", ""),
+            }
+            for param in params
+        ]
         return lookup_using_metadata(data)

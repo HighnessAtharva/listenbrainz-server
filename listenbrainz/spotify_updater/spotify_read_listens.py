@@ -181,25 +181,22 @@ def make_api_request(user: dict, endpoint: str, **kwargs):
                     raise ExternalServiceAPIError('Error from the spotify API while getting listens: %s', str(e))
 
             elif e.http_status == 401:
-                # if we get 401 Unauthorized from Spotify, that means our token might have expired.
-                # In that case, try to refresh the token, if there is an error even while refreshing
-                # give up and report to the user.
-                # We only try to refresh the token once, if we still get 401 after that, we give up.
-                if not tried_to_refresh_token:
-                    user = SpotifyService().refresh_access_token(user['user_id'], user['refresh_token'])
-                    tried_to_refresh_token = True
-
-                else:
+                if tried_to_refresh_token:
                     raise ExternalServiceAPIError('Could not authenticate with Spotify, please unlink and link your account again.')
+                user = SpotifyService().refresh_access_token(user['user_id'], user['refresh_token'])
+                tried_to_refresh_token = True
+
             elif e.http_status == 404:
                 current_app.logger.error("404 while trying to get listens for user %s", str(user), exc_info=True)
                 if retries == 0:
-                    raise ExternalServiceError("404 while trying to get listens for user %s" % str(user))
+                    raise ExternalServiceError(
+                        f"404 while trying to get listens for user {str(user)}"
+                    )
         except Exception as e:
             retries -= 1
             current_app.logger.error('Unexpected error while getting listens: %s', str(e), exc_info=True)
             if retries == 0:
-                raise ExternalServiceError('Unexpected error while getting listens: %s' % str(e))
+                raise ExternalServiceError(f'Unexpected error while getting listens: {str(e)}')
 
     return recently_played
 

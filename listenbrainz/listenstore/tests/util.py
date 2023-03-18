@@ -14,11 +14,12 @@ TEST_DATA_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..',
 def generate_data(test_user_id, user_name, from_ts, num_records, inserted_ts=None):
     test_data = []
 
-    for i in range(num_records):
-        if not inserted_ts:
-            inserted_timestamp = datetime.utcnow()
-        else:
-            inserted_timestamp = datetime.utcfromtimestamp(inserted_ts)
+    for _ in range(num_records):
+        inserted_timestamp = (
+            datetime.utcfromtimestamp(inserted_ts)
+            if inserted_ts
+            else datetime.utcnow()
+        )
         timestamp = datetime.utcfromtimestamp(from_ts)
         item = Listen(
             user_name=user_name,

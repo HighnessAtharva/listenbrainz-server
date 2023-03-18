@@ -35,7 +35,7 @@ def init_db_connection(connect_str):
             engine = create_engine(connect_str, poolclass=NullPool)
             break
         except psycopg2.OperationalError as e:
-            print("Couldn't establish connection to timescale: {}".format(str(e)))
+            print(f"Couldn't establish connection to timescale: {str(e)}")
             print("Sleeping 2 seconds and trying again...")
             time.sleep(2)
 
@@ -46,7 +46,7 @@ def run_sql_script(sql_file_path):
 
 
 def run_sql_script_without_transaction(sql_file_path):
-    with open(sql_file_path) as sql, engine.connect() as connection:
+    with (open(sql_file_path) as sql, engine.connect() as connection):
         connection.connection.set_isolation_level(0)
         lines = sql.read().splitlines()
         retries = 0
@@ -61,7 +61,7 @@ def run_sql_script_without_transaction(sql_file_path):
                             connection.execute(text(line))
                 break
             except sqlalchemy.exc.ProgrammingError as e:
-                print("Error: {}".format(e))
+                print(f"Error: {e}")
                 return False
             except sqlalchemy.exc.OperationalError:
                 print("Trapped template1 access error, FFS! Sleeping, trying again.")

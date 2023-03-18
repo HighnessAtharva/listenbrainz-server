@@ -18,7 +18,9 @@ class APITestCase(ListenAPIIntegrationTestCase):
         super(APITestCase, self).setUp()
         self.followed_user = db_user.get_or_create(3, 'followed_user')
         self.follow_user_url = url_for("social_api_v1.follow_user", user_name=self.followed_user["musicbrainz_id"])
-        self.follow_user_headers = {'Authorization': 'Token {}'.format(self.user['auth_token'])}
+        self.follow_user_headers = {
+            'Authorization': f"Token {self.user['auth_token']}"
+        }
 
     def test_get_listens_invalid_count(self):
         """If the count argument is negative, the API should raise HTTP 400"""
@@ -792,9 +794,9 @@ class APITestCase(ListenAPIIntegrationTestCase):
     def test_token_validation_auth_header(self):
         """Sends a valid token to api.validate_token in the Authorization header"""
         url = url_for('api_v1.validate_token')
-        response = self.client.get(url, headers={
-            "Authorization": "Token {}".format(self.user['auth_token'])
-        })
+        response = self.client.get(
+            url, headers={"Authorization": f"Token {self.user['auth_token']}"}
+        )
         self.assert200(response)
         self.assertEqual(response.json['code'], 200)
         self.assertEqual('Token valid.', response.json['message'])
@@ -862,9 +864,8 @@ class APITestCase(ListenAPIIntegrationTestCase):
         response = self.client.post(
             delete_listen_url,
             data=json.dumps(data),
-            headers={'Authorization': 'Token {}'.format(
-                self.user['auth_token'])},
-            content_type='application/json'
+            headers={'Authorization': f"Token {self.user['auth_token']}"},
+            content_type='application/json',
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -888,9 +889,8 @@ class APITestCase(ListenAPIIntegrationTestCase):
         response = self.client.post(
             delete_listen_url,
             data=json.dumps(data),
-            headers={'Authorization': 'Token {}'.format(
-                "invalidtokenpleaseignore")},
-            content_type='application/json'
+            headers={'Authorization': 'Token invalidtokenpleaseignore'},
+            content_type='application/json',
         )
         self.assert401(response)
 
@@ -905,9 +905,8 @@ class APITestCase(ListenAPIIntegrationTestCase):
         response = self.client.post(
             delete_listen_url,
             data=json.dumps(data),
-            headers={'Authorization': 'Token {}'.format(
-                self.user['auth_token'])},
-            content_type='application/json'
+            headers={'Authorization': f"Token {self.user['auth_token']}"},
+            content_type='application/json',
         )
         self.assertStatus(response, 400)
         self.assertEqual(response.json["error"], "Listen timestamp missing.")
@@ -920,9 +919,8 @@ class APITestCase(ListenAPIIntegrationTestCase):
         response = self.client.post(
             delete_listen_url,
             data=json.dumps(data),
-            headers={'Authorization': 'Token {}'.format(
-                self.user['auth_token'])},
-            content_type='application/json'
+            headers={'Authorization': f"Token {self.user['auth_token']}"},
+            content_type='application/json',
         )
         self.assertStatus(response, 400)
         self.assertEqual(response.json["error"], "Recording MSID missing.")
@@ -939,9 +937,8 @@ class APITestCase(ListenAPIIntegrationTestCase):
         response = self.client.post(
             delete_listen_url,
             data=json.dumps(data),
-            headers={'Authorization': 'Token {}'.format(
-                self.user['auth_token'])},
-            content_type='application/json'
+            headers={'Authorization': f"Token {self.user['auth_token']}"},
+            content_type='application/json',
         )
         self.assertStatus(response, 400)
         self.assertEqual(
@@ -956,9 +953,8 @@ class APITestCase(ListenAPIIntegrationTestCase):
         response = self.client.post(
             delete_listen_url,
             data=json.dumps(data),
-            headers={'Authorization': 'Token {}'.format(
-                self.user['auth_token'])},
-            content_type='application/json'
+            headers={'Authorization': f"Token {self.user['auth_token']}"},
+            content_type='application/json',
         )
         self.assertEqual(
             response.json["error"], "invalid recording_msid: Recording MSID format invalid.")

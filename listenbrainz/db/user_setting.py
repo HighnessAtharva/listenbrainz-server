@@ -39,16 +39,14 @@ def get(user_id: int):
             """), {
                 "user_id": user_id,
             })
-            row = result.mappings().first()
-            if row:
+            if row := result.mappings().first():
                 row = dict(row)
                 if not row["timezone_name"]:
                     row["timezone_name"] = DEFAULT_TIMEZONE
                 return row
             return {"timezone_name": DEFAULT_TIMEZONE}
         except sqlalchemy.exc.ProgrammingError as err:
-            raise DatabaseException(
-                "Couldn't get user's setting: %s" % str(err))
+            raise DatabaseException(f"Couldn't get user's setting: {str(err)}")
 
 
 def set_timezone(user_id: int, timezone_name: str):
@@ -71,8 +69,7 @@ def set_timezone(user_id: int, timezone_name: str):
                 "timezone_name": timezone_name,
             })
         except sqlalchemy.exc.ProgrammingError as err:
-            raise DatabaseException(
-                "Couldn't update user's timezone: %s" % str(err))
+            raise DatabaseException(f"Couldn't update user's timezone: {str(err)}")
 
 
 def standardize_timezone(timezones):
@@ -88,9 +85,9 @@ def standardize_timezone(timezones):
     result = []
     for (name, offset) in timezones:
         if offset.days > -1:
-            result.append((name, "+" + str(offset) + " GMT"))
+            result.append((name, f"+{str(offset)} GMT"))
         else:
-            result.append((name, str(offset.seconds//3600 - 24) + ":00:00 GMT"))
+            result.append((name, f"{str(offset.seconds // 3600 - 24)}:00:00 GMT"))
     return result
 
 

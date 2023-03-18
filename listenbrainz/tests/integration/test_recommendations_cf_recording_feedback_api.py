@@ -54,10 +54,12 @@ class RecommendationFeedbackAPITestCase(IntegrationTestCase):
         }
 
         response = self.client.post(
-            url_for("recommendation_feedback_api_v1.submit_recommendation_feedback"),
+            url_for(
+                "recommendation_feedback_api_v1.submit_recommendation_feedback"
+            ),
             data=json.dumps(feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -97,10 +99,12 @@ class RecommendationFeedbackAPITestCase(IntegrationTestCase):
         }
 
         response = self.client.post(
-            url_for("recommendation_feedback_api_v1.submit_recommendation_feedback"),
+            url_for(
+                "recommendation_feedback_api_v1.submit_recommendation_feedback"
+            ),
             data=json.dumps(incomplete_feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert400(response)
         self.assertEqual(response.json["error"], "JSON document must contain recording_mbid and rating")
@@ -111,10 +115,12 @@ class RecommendationFeedbackAPITestCase(IntegrationTestCase):
         }
 
         response = self.client.post(
-            url_for("recommendation_feedback_api_v1.submit_recommendation_feedback"),
+            url_for(
+                "recommendation_feedback_api_v1.submit_recommendation_feedback"
+            ),
             data=json.dumps(incomplete_feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert400(response)
         self.assertEqual(response.json["error"], "JSON document must contain recording_mbid and rating")
@@ -123,10 +129,12 @@ class RecommendationFeedbackAPITestCase(IntegrationTestCase):
         empty_feedback = {}
 
         response = self.client.post(
-            url_for("recommendation_feedback_api_v1.submit_recommendation_feedback"),
+            url_for(
+                "recommendation_feedback_api_v1.submit_recommendation_feedback"
+            ),
             data=json.dumps(empty_feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert400(response)
         self.assertEqual(response.json["error"], "JSON document must contain recording_mbid and rating")
@@ -140,10 +148,12 @@ class RecommendationFeedbackAPITestCase(IntegrationTestCase):
         }
 
         response = self.client.post(
-            url_for("recommendation_feedback_api_v1.submit_recommendation_feedback"),
+            url_for(
+                "recommendation_feedback_api_v1.submit_recommendation_feedback"
+            ),
             data=json.dumps(invalid_feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert400(response)
         self.assertEqual(response.json["error"], "JSON document must only contain recording_mbid and rating")
@@ -158,10 +168,12 @@ class RecommendationFeedbackAPITestCase(IntegrationTestCase):
         }
 
         response = self.client.post(
-            url_for("recommendation_feedback_api_v1.submit_recommendation_feedback"),
+            url_for(
+                "recommendation_feedback_api_v1.submit_recommendation_feedback"
+            ),
             data=json.dumps(invalid_feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert400(response)
 
@@ -172,10 +184,12 @@ class RecommendationFeedbackAPITestCase(IntegrationTestCase):
         }
 
         response = self.client.post(
-            url_for("recommendation_feedback_api_v1.submit_recommendation_feedback"),
+            url_for(
+                "recommendation_feedback_api_v1.submit_recommendation_feedback"
+            ),
             data=json.dumps(invalid_feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert400(response)
 
@@ -186,10 +200,12 @@ class RecommendationFeedbackAPITestCase(IntegrationTestCase):
         }
 
         response = self.client.post(
-            url_for("recommendation_feedback_api_v1.submit_recommendation_feedback"),
+            url_for(
+                "recommendation_feedback_api_v1.submit_recommendation_feedback"
+            ),
             data=json.dumps(invalid_feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert400(response)
 
@@ -203,10 +219,12 @@ class RecommendationFeedbackAPITestCase(IntegrationTestCase):
         }
 
         response = self.client.post(
-            url_for("recommendation_feedback_api_v1.submit_recommendation_feedback"),
+            url_for(
+                "recommendation_feedback_api_v1.submit_recommendation_feedback"
+            ),
             data=json.dumps(feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -224,10 +242,12 @@ class RecommendationFeedbackAPITestCase(IntegrationTestCase):
         }
 
         response = self.client.post(
-            url_for("recommendation_feedback_api_v1.submit_recommendation_feedback"),
+            url_for(
+                "recommendation_feedback_api_v1.submit_recommendation_feedback"
+            ),
             data=json.dumps(updated_feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -247,10 +267,12 @@ class RecommendationFeedbackAPITestCase(IntegrationTestCase):
         }
 
         response = self.client.post(
-            url_for("recommendation_feedback_api_v1.submit_recommendation_feedback"),
+            url_for(
+                "recommendation_feedback_api_v1.submit_recommendation_feedback"
+            ),
             data=json.dumps(feedback),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -262,12 +284,16 @@ class RecommendationFeedbackAPITestCase(IntegrationTestCase):
         self.assertEqual(result[0].rating, feedback["rating"])
 
         response = self.client.post(
-            url_for("recommendation_feedback_api_v1.delete_recommendation_feedback"),
-            data=json.dumps({
-                "recording_mbid": "7babc9be-ca2b-4544-b932-7c9ab38770d6",
-            }),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            url_for(
+                "recommendation_feedback_api_v1.delete_recommendation_feedback"
+            ),
+            data=json.dumps(
+                {
+                    "recording_mbid": "7babc9be-ca2b-4544-b932-7c9ab38770d6",
+                }
+            ),
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert200(response)
         self.assertEqual(response.json["status"], "ok")
@@ -307,10 +333,12 @@ class RecommendationFeedbackAPITestCase(IntegrationTestCase):
         }
 
         response = self.client.post(
-            url_for("recommendation_feedback_api_v1.delete_recommendation_feedback"),
+            url_for(
+                "recommendation_feedback_api_v1.delete_recommendation_feedback"
+            ),
             data=json.dumps(invalid_del_rec),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert400(response)
         self.assertEqual(response.json["error"], "JSON document must contain recording_mbid")
@@ -318,10 +346,12 @@ class RecommendationFeedbackAPITestCase(IntegrationTestCase):
         empty_del_rec = {}
 
         response = self.client.post(
-            url_for("recommendation_feedback_api_v1.delete_recommendation_feedback"),
+            url_for(
+                "recommendation_feedback_api_v1.delete_recommendation_feedback"
+            ),
             data=json.dumps(empty_del_rec),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert400(response)
         self.assertEqual(response.json["error"], "JSON document must contain recording_mbid")
@@ -331,10 +361,12 @@ class RecommendationFeedbackAPITestCase(IntegrationTestCase):
         }
 
         response = self.client.post(
-            url_for("recommendation_feedback_api_v1.delete_recommendation_feedback"),
+            url_for(
+                "recommendation_feedback_api_v1.delete_recommendation_feedback"
+            ),
             data=json.dumps(invalid_del_rec),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert400(response)
 
@@ -346,10 +378,12 @@ class RecommendationFeedbackAPITestCase(IntegrationTestCase):
         }
 
         response = self.client.post(
-            url_for("recommendation_feedback_api_v1.delete_recommendation_feedback"),
+            url_for(
+                "recommendation_feedback_api_v1.delete_recommendation_feedback"
+            ),
             data=json.dumps(invalid_del_rec),
-            headers={"Authorization": "Token {}".format(self.user["auth_token"])},
-            content_type="application/json"
+            headers={"Authorization": f'Token {self.user["auth_token"]}'},
+            content_type="application/json",
         )
         self.assert400(response)
         self.assertEqual(response.json["error"], "JSON document must only contain recording_mbid")
@@ -414,7 +448,7 @@ class RecommendationFeedbackAPITestCase(IntegrationTestCase):
     def test_get_feedback_for_user_for_count_and_offset(self):
         """ Test to make sure valid response is received when count rating is passed """
         feedback_love = []
-        for i in range(110):
+        for _ in range(110):
             rec_mbid = str(uuid.uuid4())
             db_feedback.insert(
                 RecommendationFeedbackSubmit(
@@ -516,9 +550,13 @@ class RecommendationFeedbackAPITestCase(IntegrationTestCase):
         rec_mbid_1 = sample_feedback[0]["recording_mbid"]
         rec_mbid_2 = sample_feedback[1]["recording_mbid"]
 
-        response = self.client.get(url_for("recommendation_feedback_api_v1.get_feedback_for_recordings_for_user",
-                                           user_name=self.user1["musicbrainz_id"]),
-                                           query_string={"mbids": ""+rec_mbid_1+','+rec_mbid_2})
+        response = self.client.get(
+            url_for(
+                "recommendation_feedback_api_v1.get_feedback_for_recordings_for_user",
+                user_name=self.user1["musicbrainz_id"],
+            ),
+            query_string={"mbids": f"{rec_mbid_1},{rec_mbid_2}"},
+        )
 
         self.assert200(response)
         data = json.loads(response.data)

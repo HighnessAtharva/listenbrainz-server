@@ -19,10 +19,7 @@ class User(object):
         with db.engine.connect() as connection:
             result = connection.execute(text(""" SELECT id FROM "user" WHERE
                                             musicbrainz_id = :mb_id """), {"mb_id": mb_id})
-            row = result.fetchone()
-            if row:
-                return row[0]
-            return None
+            return row[0] if (row := result.fetchone()) else None
 
     @staticmethod
     def load_by_name(mb_id):
@@ -30,8 +27,7 @@ class User(object):
             result = connection.execute(text(""" SELECT id, created, musicbrainz_id, auth_token \
                                                    FROM "user" \
                                                   WHERE musicbrainz_id = :mb_id """), {"mb_id": mb_id})
-            row = result.fetchone()
-            if row:
+            if row := result.fetchone():
                 return User(row.id, row.created, row.musicbrainz_id, row.auth_token)
             return None
 
@@ -41,8 +37,7 @@ class User(object):
             result = connection.execute(text(""" SELECT id, created, musicbrainz_id, auth_token \
                                                    FROM "user"
                                                   WHERE id=:id """), {"id": serial})
-            row = result.fetchone()
-            if row:
+            if row := result.fetchone():
                 return User(row.id, row.created, row.musicbrainz_id, row.auth_token)
             return None
 
@@ -60,8 +55,7 @@ class User(object):
                 "api_key": api_key,
                 "sk": session_key
             })
-            row = result.fetchone()
-            if row:
+            if row := result.fetchone():
                 return User(row.id, row.created, row.musicbrainz_id, row.auth_token)
             return None
 

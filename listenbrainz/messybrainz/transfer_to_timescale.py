@@ -32,7 +32,7 @@ def init_old_msb_db_connection(connect_str):
             msb_engine = create_engine(connect_str, poolclass=NullPool)
             break
         except psycopg2.OperationalError as e:
-            print("Couldn't establish connection to db: {}".format(str(e)))
+            print(f"Couldn't establish connection to db: {str(e)}")
             print("Sleeping for 2 seconds and trying again...")
             time.sleep(2)
 

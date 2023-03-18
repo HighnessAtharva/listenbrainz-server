@@ -45,8 +45,7 @@ class UserListensSessionQuery(Query):
 
         with db.engine.connect() as conn:
             curs = conn.execute(text('SELECT id FROM "user" WHERE musicbrainz_id = :user_name'), user_name=user_name)
-            row = curs.fetchone()
-            if row:
+            if row := curs.fetchone():
                 user_id = row["id"]
             else:
                 return [
@@ -131,14 +130,27 @@ class UserListensSessionQuery(Query):
         with timescale.engine.connect() as conn:
             curs = conn.execute(text(query), user_id=user_id, from_ts=from_ts, to_ts=to_ts, threshold=threshold)
             for row in curs.fetchall():
-                results.append({
-                    "type": "markup",
-                    "data": Markup(f"<p><b>Session Number: {row['session_id']}</b></p>")
-                })
-                results.append({
-                    "type": "dataset",
-                    "columns": ["listened_at", "duration", "difference", "skipped",
-                                "artist_name", "track_name", "recording_mbid"],
-                    "data": row["data"]
-                })
+                results.extend(
+                    (
+                        {
+                            "type": "markup",
+                            "data": Markup(
+                                f"<p><b>Session Number: {row['session_id']}</b></p>"
+                            ),
+                        },
+                        {
+                            "type": "dataset",
+                            "columns": [
+                                "listened_at",
+                                "duration",
+                                "difference",
+                                "skipped",
+                                "artist_name",
+                                "track_name",
+                                "recording_mbid",
+                            ],
+                            "data": row["data"],
+                        },
+                    )
+                )
         return results

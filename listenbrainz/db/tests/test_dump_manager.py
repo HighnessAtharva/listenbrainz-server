@@ -130,12 +130,11 @@ class DumpManagerTestCase(DatabaseTestCase):
         self.assertEqual(len(os.listdir(self.tempdir)), 1)
         dump_name = os.listdir(self.tempdir)[0]
 
-        # make sure that the dump contains a full listens dump, a public and private dump (postgres),
-        # a public and private dump (timescale) and a spark dump.
-        archive_count = 0
-        for file_name in os.listdir(os.path.join(self.tempdir, dump_name)):
-            if file_name.endswith('.tar.xz') or file_name.endswith(".tar"):
-                archive_count += 1
+        archive_count = sum(
+            1
+            for file_name in os.listdir(os.path.join(self.tempdir, dump_name))
+            if file_name.endswith('.tar.xz') or file_name.endswith(".tar")
+        )
         self.assertEqual(archive_count, 7)
 
     def test_create_full_dump_with_id(self):
@@ -158,11 +157,11 @@ class DumpManagerTestCase(DatabaseTestCase):
         created_dump_id = int(dump_name.split('-')[2])
         self.assertEqual(dump_id, created_dump_id)
 
-        # dump should contain the 6 archives
-        archive_count = 0
-        for file_name in os.listdir(os.path.join(self.tempdir, dump_name)):
-            if file_name.endswith('.tar.xz') or file_name.endswith(".tar"):
-                archive_count += 1
+        archive_count = sum(
+            1
+            for file_name in os.listdir(os.path.join(self.tempdir, dump_name))
+            if file_name.endswith('.tar.xz') or file_name.endswith(".tar")
+        )
         self.assertEqual(archive_count, 7)
 
     def test_create_incremental(self):
@@ -187,11 +186,11 @@ class DumpManagerTestCase(DatabaseTestCase):
         print("%d created dump id" % created_dump_id)
         self.assertEqual(created_dump_id, dump_id + 1)
 
-        # make sure that the dump contains a full listens and spark dump
-        archive_count = 0
-        for file_name in os.listdir(os.path.join(self.tempdir, dump_name)):
-            if file_name.endswith('.tar.xz') or file_name.endswith(".tar"):
-                archive_count += 1
+        archive_count = sum(
+            1
+            for file_name in os.listdir(os.path.join(self.tempdir, dump_name))
+            if file_name.endswith('.tar.xz') or file_name.endswith(".tar")
+        )
         self.assertEqual(archive_count, 2)
 
     def test_create_incremental_dump_with_id(self):
@@ -216,11 +215,11 @@ class DumpManagerTestCase(DatabaseTestCase):
         created_dump_id = int(dump_name.split('-')[2])
         self.assertEqual(dump_id, created_dump_id)
 
-        # dump should contain the listen and spark archive
-        archive_count = 0
-        for file_name in os.listdir(os.path.join(self.tempdir, dump_name)):
-            if file_name.endswith('.tar.xz') or file_name.endswith(".tar"):
-                archive_count += 1
+        archive_count = sum(
+            1
+            for file_name in os.listdir(os.path.join(self.tempdir, dump_name))
+            if file_name.endswith('.tar.xz') or file_name.endswith(".tar")
+        )
         self.assertEqual(archive_count, 2)
 
     def test_create_feedback(self):
@@ -280,9 +279,9 @@ class DumpManagerTestCase(DatabaseTestCase):
         self.assertEqual(len(os.listdir(self.tempdir)), 1)
         dump_name = os.listdir(self.tempdir)[0]
 
-        # make sure that the dump contains a feedback dump
-        archive_count = 0
-        for file_name in os.listdir(os.path.join(self.tempdir, dump_name)):
-            if file_name.endswith('.tar.xz') or file_name.endswith(".tar"):
-                archive_count += 1
+        archive_count = sum(
+            1
+            for file_name in os.listdir(os.path.join(self.tempdir, dump_name))
+            if file_name.endswith('.tar.xz') or file_name.endswith(".tar")
+        )
         self.assertEqual(archive_count, 1)

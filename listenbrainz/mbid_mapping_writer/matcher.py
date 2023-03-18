@@ -37,7 +37,7 @@ def process_listens(app, listens, priority):
     # e.g. (priority == RECHECK_LISTEN)
     debug = False
 
-    if len(msids) == 0:
+    if not msids:
         return stats
 
     listens_to_check = []
@@ -76,7 +76,7 @@ def process_listens(app, listens, priority):
                 if msid not in msids_to_check:
                     app.logger.info(f"Remove {msid}, since a match exists")
 
-    if len(listens_to_check) == 0:
+    if not listens_to_check:
         return stats
 
     conn = timescale.engine.raw_connection()
@@ -166,12 +166,12 @@ def process_listens(app, listens, priority):
                 )
 
         except psycopg2.errors.CardinalityViolation:
-            app.logger.error("CardinalityViolation on insert to mbid mapping\n%s" % str(query))
+            app.logger.error("CardinalityViolation on insert to mbid mapping\n%s" % query)
             conn.rollback()
             return
 
         except (psycopg2.OperationalError, psycopg2.errors.DatatypeMismatch) as err:
-            app.logger.info("Cannot insert MBID mapping rows. (%s)" % str(err))
+            app.logger.info(f"Cannot insert MBID mapping rows. ({str(err)})")
             conn.rollback()
             return
 
@@ -196,11 +196,13 @@ def lookup_listens(app, listens, stats, exact, debug):
     else:
         q = MBIDMappingQuery(timeout=SEARCH_TIMEOUT, remove_stop_words=True, debug=debug)
 
-    params = []
-    for listen in listens:
-        params.append({'[artist_credit_name]': listen["track_metadata"]["artist_name"],
-                       '[recording_name]': listen["track_metadata"]["track_name"]})
-
+    params = [
+        {
+            '[artist_credit_name]': listen["track_metadata"]["artist_name"],
+            '[recording_name]': listen["track_metadata"]["track_name"],
+        }
+        for listen in listens
+    ]
     rows = []
     hits = q.fetch(params)
     for hit in sorted(hits, key=itemgetter("index"), reverse=True):

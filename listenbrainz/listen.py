@@ -20,7 +20,7 @@ def flatten_dict(d, seperator='', parent_key=''):
     """
     result = []
     for key, value in d.items():
-        new_key = "{}{}{}".format(parent_key, seperator, str(key))
+        new_key = f"{parent_key}{seperator}{str(key)}"
         if isinstance(value, dict):
             result.extend(list(flatten_dict(value, '.', new_key).items()))
         else:
@@ -31,9 +31,7 @@ def flatten_dict(d, seperator='', parent_key=''):
 def convert_comma_seperated_string_to_list(string):
     if not string:
         return []
-    if isinstance(string, list):
-        return string
-    return [val for val in string.split(',')]
+    return string if isinstance(string, list) else list(string.split(','))
 
 
 class Listen(object):
@@ -75,16 +73,15 @@ class Listen(object):
         self.user_name = user_name
 
         # determine the type of timestamp and do the right thing
-        if isinstance(timestamp, int) or isinstance(timestamp, float):
+        if isinstance(timestamp, (int, float)):
             self.ts_since_epoch = int(timestamp)
             self.timestamp = datetime.utcfromtimestamp(self.ts_since_epoch)
+        elif timestamp:
+            self.timestamp = timestamp
+            self.ts_since_epoch = calendar.timegm(self.timestamp.utctimetuple())
         else:
-            if timestamp:
-                self.timestamp = timestamp
-                self.ts_since_epoch = calendar.timegm(self.timestamp.utctimetuple())
-            else:
-                self.timestamp = None
-                self.ts_since_epoch = None
+            self.timestamp = None
+            self.ts_since_epoch = None
 
         self.recording_msid = recording_msid
         self.dedup_tag = dedup_tag
@@ -140,14 +137,16 @@ class Listen(object):
                 data["track_metadata"]["mbid_mapping"]["release_mbid"] = str(release_mbid)
 
             if artist_mbids is not None and ac_names is not None and ac_join_phrases is not None:
-                artists = []
-                for (mbid, name, join_phrase) in zip(artist_mbids, ac_names, ac_join_phrases):
-                    artists.append({
+                artists = [
+                    {
                         "artist_mbid": mbid,
                         "artist_credit_name": name,
-                        "join_phrase": join_phrase
-                    })
-
+                        "join_phrase": join_phrase,
+                    }
+                    for mbid, name, join_phrase in zip(
+                        artist_mbids, ac_names, ac_join_phrases
+                    )
+                ]
                 data["track_metadata"]["mbid_mapping"]["artists"] = artists
                 data["track_metadata"]["mbid_mapping"]["artist_mbids"] = [str(m) for m in artist_mbids]
 
@@ -217,8 +216,7 @@ class Listen(object):
         return pformat(vars(self))
 
     def __unicode__(self):
-        return "<Listen: user_name: %s, time: %s, recording_msid: %s, artist_name: %s, track_name: %s>" % \
-               (self.user_name, self.ts_since_epoch, self.recording_msid, self.data['artist_name'], self.data['track_name'])
+        return f"<Listen: user_name: {self.user_name}, time: {self.ts_since_epoch}, recording_msid: {self.recording_msid}, artist_name: {self.data['artist_name']}, track_name: {self.data['track_name']}>"
 
 
 class NowPlayingListen:
@@ -249,8 +247,7 @@ class NowPlayingListen:
         return pformat(vars(self))
 
     def __str__(self):
-        return "<Now Playing Listen: user_name: %s, artist_name: %s, track_name: %s>" % \
-               (self.user_name, self.data['artist_name'], self.data['track_name'])
+        return f"<Now Playing Listen: user_name: {self.user_name}, artist_name: {self.data['artist_name']}, track_name: {self.data['track_name']}>"
 
 
 def convert_dump_row_to_spark_row(row):

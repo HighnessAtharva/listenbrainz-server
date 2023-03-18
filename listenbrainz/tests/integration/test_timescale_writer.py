@@ -31,9 +31,9 @@ class TimescaleWriterTestCase(IntegrationTestCase, TimescaleTestCase):
             payload = json.load(f)
         response = self.client.post(
             url_for('api_v1.submit_listen'),
-            data = json.dumps(payload),
-            headers = {'Authorization': 'Token {}'.format(user['auth_token'])},
-            content_type = 'application/json'
+            data=json.dumps(payload),
+            headers={'Authorization': f"Token {user['auth_token']}"},
+            content_type='application/json',
         )
         time.sleep(1)  # sleep to allow timescale-writer to do its thing
         recalculate_all_user_data()

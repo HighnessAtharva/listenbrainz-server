@@ -31,7 +31,7 @@ def handle_couchdb_data_start(message):
     if not match:
         return
     try:
-        couchdb.create_database(match[1] + "_" + match[2] + "_" + match[3])
+        couchdb.create_database(f"{match[1]}_{match[2]}_{match[3]}")
         if match[1] == "artists":
             couchdb.create_database("artistmap" + "_" + match[2] + "_" + match[3])
     except HTTPError as e:
@@ -46,7 +46,7 @@ def handle_couchdb_data_end(message):
     if not match:
         return
     try:
-        _, retained = couchdb.delete_database(match[1] + "_" + match[2])
+        _, retained = couchdb.delete_database(f"{match[1]}_{match[2]}")
         if retained:
             current_app.logger.info(f"Databases: {retained} matched but weren't deleted because"
                                     f" _LOCK file existed")
@@ -131,10 +131,9 @@ def handle_dump_imported(data):
     if current_app.config['TESTING']:
         return
 
-    errors = data['errors']
-    import_completion_time = data['time']
+    if errors := data['errors']:
+        import_completion_time = data['time']
 
-    if errors:
         send_mail(
             subject='Spark Cluster Dump import failures!',
             text=render_template('emails/dump_import_failure.txt', errors=errors, time=import_completion_time),
@@ -239,7 +238,9 @@ def handle_recommendations(data):
         current_app.logger.info(f"Generated recommendations for a user that doesn't exist in the Postgres database: {user_id}")
         return
 
-    current_app.logger.debug("inserting recommendation for {}".format(user["musicbrainz_id"]))
+    current_app.logger.debug(
+        f'inserting recommendation for {user["musicbrainz_id"]}'
+    )
     recommendations = data['recommendations']
 
     try:
@@ -251,9 +252,13 @@ def handle_recommendations(data):
         current_app.logger.error(f"""ValidationError while inserting recommendations for user with musicbrainz_id:
                                  {user["musicbrainz_id"]}. \nData: {json.dumps(data, indent=3)}""")
 
-    current_app.logger.debug("recommendation for {} inserted".format(user["musicbrainz_id"]))
+    current_app.logger.debug(
+        f'recommendation for {user["musicbrainz_id"]} inserted'
+    )
 
-    current_app.logger.debug("Running post recommendation steps for user {}".format(user["musicbrainz_id"]))
+    current_app.logger.debug(
+        f'Running post recommendation steps for user {user["musicbrainz_id"]}'
+    )
 
 
 def handle_fresh_releases(message):
@@ -361,11 +366,10 @@ def handle_yim_similar_users(message):
 
 def handle_yim_new_releases_of_top_artists(message):
     user_id = message["user_id"]
-    # need to check whether user exists before inserting otherwise possible FK error.
-    user = db_user.get(user_id)
-    if not user:
+    if user := db_user.get(user_id):
+        year_in_music.insert_new_releases_of_top_artists(user_id, message["year"], message["data"])
+    else:
         return
-    year_in_music.insert_new_releases_of_top_artists(user_id, message["year"], message["data"])
 
 
 def handle_yim_day_of_week(message):
